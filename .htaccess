@@ -21,6 +21,11 @@ DirectoryIndex Public/index.php index.php
 
 Options -Indexes
 
+# Não expor config de deploy / ambiente
+<FilesMatch "^(\.env|\.cpanel\.yml|\.git)">
+    Require all denied
+</FilesMatch>
+
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
 </IfModule>
