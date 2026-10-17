@@ -1,5 +1,10 @@
     </main>
 
+    <?php
+    $footerAboutText = (new \Models\Setting())->get('footer_about_text', 'Soluções em tecnologia da informação. Trazendo inovação e estabilidade para o seu negócio.');
+    $globalWhatsappUrl = whatsapp_link();
+    ?>
+
     <!-- Footer -->
     <footer class="bg-brand-dark text-white pt-12 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,58 +13,57 @@
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         <?php if(!empty($globalCompanyLogo)): ?>
-                            <img src="/cm1/Public<?= htmlspecialchars($globalCompanyLogo) ?>" alt="<?= htmlspecialchars($globalCompanyName) ?>" class="h-8 w-auto object-contain bg-white p-1 rounded">
+                            <img src="<?= htmlspecialchars(asset($globalCompanyLogo)) ?>" alt="<?= e($globalCompanyName) ?>" class="h-8 w-auto object-contain bg-white p-1 rounded">
                         <?php else: ?>
                             <div class="w-8 h-8 bg-white rounded flex items-center justify-center text-brand-dark font-bold">
-                                <?= substr($globalCompanyName ?? 'C', 0, 1) ?>
+                                <?= e(mb_substr($globalCompanyName ?? 'c', 0, 1)) ?>
                             </div>
                         <?php endif; ?>
-                        <span class="font-bold text-xl"><?= htmlspecialchars($globalCompanyName ?? 'CONINFOMS') ?></span>
+                        <span class="font-bold text-xl"><?= e($globalCompanyName ?? \Config\App::BRAND_NAME) ?></span>
                     </div>
-                    <?php 
-                    $footerAboutText = (new \Models\Setting())->get('footer_about_text', 'Soluções em tecnologia da informação. Trazendo inovação e estabilidade para o seu negócio.');
-                    ?>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        <?= htmlspecialchars($footerAboutText) ?>
+                    <p class="text-brand-light/70 text-sm leading-relaxed">
+                        <?= e($footerAboutText) ?>
                     </p>
                 </div>
-                
+
                 <!-- Coluna 2 -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Links Rápidos</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="/cm1/" class="hover:text-white transition-colors">Início</a></li>
+                    <h3 class="text-lg font-semibold mb-4 border-b border-brand-slate pb-2">Links Rápidos</h3>
+                    <ul class="space-y-2 text-sm text-brand-light/70">
+                        <li><a href="<?= htmlspecialchars(url()) ?>" class="hover:text-white transition-colors">Início</a></li>
+                        <li><a href="<?= htmlspecialchars(url('materias')) ?>" class="hover:text-white transition-colors">Matérias</a></li>
                         <?php if(!empty($menuPages)): ?>
                             <?php $footerPages = array_slice($menuPages, 0, 4); // Mostra até 4 páginas no rodapé ?>
                             <?php foreach($footerPages as $mp): ?>
-                                <li><a href="/cm1/pagina?slug=<?= htmlspecialchars($mp['slug']) ?>" class="hover:text-white transition-colors"><?= htmlspecialchars($mp['title']) ?></a></li>
+                                <li><a href="<?= htmlspecialchars(url('pagina?slug=' . rawurlencode($mp['slug']))) ?>" class="hover:text-white transition-colors"><?= e($mp['title']) ?></a></li>
                             <?php endforeach; ?>
                         <?php endif; ?>
+                        <li><a href="<?= htmlspecialchars(url('contato')) ?>" class="hover:text-white transition-colors">Contato</a></li>
                     </ul>
                 </div>
-                
-                <!-- Coluna 3 -->
+
+                <!-- Coluna 3: canal único de contato -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Contato</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-envelope"></i> <?= htmlspecialchars($contactEmail ?? 'contato@coninfoms.com.br') ?></li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-phone"></i> <?= htmlspecialchars($contactPhone ?? '(00) 0000-0000') ?></li>
-                    </ul>
+                    <h3 class="text-lg font-semibold mb-4 border-b border-brand-slate pb-2">Contato</h3>
+                    <p class="text-sm text-brand-light/70 mb-4">Fale com a gente diretamente pelo WhatsApp.</p>
+                    <a href="<?= htmlspecialchars($globalWhatsappUrl) ?>" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1EBE5A] text-white font-bold px-5 py-2.5 rounded-md shadow transition-colors">
+                        <i class="fa-brands fa-whatsapp text-xl"></i> Chamar no WhatsApp
+                    </a>
                 </div>
             </div>
-            
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
-                &copy; <?= date('Y') ?> <?= htmlspecialchars($globalCompanyName ?? 'CONINFOMS') ?>. Todos os direitos reservados.
+
+            <div class="border-t border-brand-slate mt-8 pt-8 text-center text-sm text-brand-light/60">
+                &copy; <?= date('Y') ?> <?= e($globalCompanyName ?? \Config\App::BRAND_NAME) ?> &middot; <?= htmlspecialchars(\Config\App::SITE_DOMAIN) ?>. Todos os direitos reservados.
             </div>
         </div>
     </footer>
 
-    <!-- WhatsApp Floating Button -->
-    <?php if(!empty($whatsappUrl)): ?>
-    <a href="<?= htmlspecialchars($whatsappUrl) ?>" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg hover:bg-green-600 hover:-translate-y-1 transition-transform z-50">
+    <!-- WhatsApp: botão flutuante global -->
+    <a href="<?= htmlspecialchars($globalWhatsappUrl) ?>" target="_blank" rel="noopener noreferrer"
+       class="wa-float" aria-label="Falar com a <?= e(\Config\App::BRAND_NAME) ?> pelo WhatsApp" title="Fale conosco pelo WhatsApp">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
-    <?php endif; ?>
 
     <!-- Scripts Básicos -->
     <script>
@@ -67,7 +71,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-menu');
-            
+
             if (btn && menu) {
                 const icon = btn.querySelector('i');
                 btn.addEventListener('click', () => {

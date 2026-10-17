@@ -16,7 +16,7 @@ class ArticleController extends Controller
     {
         // Protege todas as rotas deste controller
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
         $this->articleModel = new Article();
@@ -59,7 +59,7 @@ class ArticleController extends Controller
     public function store(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
             exit;
         }
 
@@ -70,7 +70,7 @@ class ArticleController extends Controller
 
         if (empty($title) || empty($content)) {
             $_SESSION['error_msg'] = 'Título e conteúdo são obrigatórios.';
-            header('Location: /cm1/admin/articles/create');
+            header('Location: ' . url('admin/articles/create'));
             exit;
         }
 
@@ -85,7 +85,7 @@ class ArticleController extends Controller
         if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] !== UPLOAD_ERR_NO_FILE) {
             if ($_FILES['featured_image']['error'] === UPLOAD_ERR_INI_SIZE) {
                 $_SESSION['error_msg'] = 'A imagem excede o limite de upload do servidor (verifique o upload_max_filesize no cPanel).';
-                header('Location: /cm1/admin/articles/create');
+                header('Location: ' . url('admin/articles/create'));
                 exit;
             }
 
@@ -99,12 +99,12 @@ class ArticleController extends Controller
                 if (empty($_SESSION['error_msg'])) {
                     $_SESSION['error_msg'] = 'Erro ao processar a imagem de destaque.';
                 }
-                header('Location: /cm1/admin/articles/create');
+                header('Location: ' . url('admin/articles/create'));
                 exit;
             }
             } else {
                 $_SESSION['error_msg'] = 'Erro desconhecido ao fazer upload da imagem. Código: ' . $_FILES['featured_image']['error'];
-                header('Location: /cm1/admin/articles/create');
+                header('Location: ' . url('admin/articles/create'));
                 exit;
             }
         }
@@ -116,15 +116,15 @@ class ArticleController extends Controller
             if (isset($_POST['post_social']) && $is_published) {
                 $socialService = new SocialMediaService();
                 // Monta a URL completa do artigo
-                $articleUrl = "https://www.coninfoms.com.br/cm1/artigo/" . $data['slug']; 
+                $articleUrl = abs_url('artigo?slug=' . rawurlencode($data['slug'])); 
                 $socialService->postToMeta($title, $articleUrl, $data['featured_image'] ?? null);
             }
 
             $_SESSION['success_msg'] = 'Artigo criado com sucesso!';
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
         } else {
             $_SESSION['error_msg'] = 'Erro ao salvar no banco de dados.';
-            header('Location: /cm1/admin/articles/create');
+            header('Location: ' . url('admin/articles/create'));
         }
     }
 
@@ -135,13 +135,13 @@ class ArticleController extends Controller
     {
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         if (!$id) {
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
             exit;
         }
 
         $article = $this->articleModel->findById($id);
         if (!$article) {
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
             exit;
         }
 
@@ -161,7 +161,7 @@ class ArticleController extends Controller
     public function update(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
             exit;
         }
 
@@ -172,7 +172,7 @@ class ArticleController extends Controller
 
         if (!$id || empty($title) || empty($content)) {
             $_SESSION['error_msg'] = 'Campos obrigatórios não preenchidos.';
-            header("Location: /cm1/admin/articles/edit?id={$id}");
+            header('Location: ' . url("admin/articles/edit?id={$id}"));
             exit;
         }
 
@@ -186,7 +186,7 @@ class ArticleController extends Controller
         if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] !== UPLOAD_ERR_NO_FILE) {
             if ($_FILES['featured_image']['error'] === UPLOAD_ERR_INI_SIZE) {
                 $_SESSION['error_msg'] = 'A imagem excede o limite de upload do servidor (verifique o upload_max_filesize no cPanel).';
-                header("Location: /cm1/admin/articles/edit?id={$id}");
+                header('Location: ' . url("admin/articles/edit?id={$id}"));
                 exit;
             }
 
@@ -200,22 +200,22 @@ class ArticleController extends Controller
                     if (empty($_SESSION['error_msg'])) {
                         $_SESSION['error_msg'] = 'Erro ao processar a nova imagem de destaque.';
                     }
-                    header("Location: /cm1/admin/articles/edit?id={$id}");
+                    header('Location: ' . url("admin/articles/edit?id={$id}"));
                     exit;
                 }
             } else {
                 $_SESSION['error_msg'] = 'Erro desconhecido ao fazer upload da imagem. Código: ' . $_FILES['featured_image']['error'];
-                header("Location: /cm1/admin/articles/edit?id={$id}");
+                header('Location: ' . url("admin/articles/edit?id={$id}"));
                 exit;
             }
         }
 
         if ($this->articleModel->update($id, $data)) {
             $_SESSION['success_msg'] = 'Artigo atualizado com sucesso!';
-            header('Location: /cm1/admin/articles');
+            header('Location: ' . url('admin/articles'));
         } else {
             $_SESSION['error_msg'] = 'Erro ao atualizar no banco de dados.';
-            header("Location: /cm1/admin/articles/edit?id={$id}");
+            header('Location: ' . url("admin/articles/edit?id={$id}"));
         }
     }
 
@@ -265,7 +265,7 @@ class ArticleController extends Controller
             $_SESSION['success_msg'] = 'Artigo removido com sucesso!';
         }
         
-        header('Location: /cm1/admin/articles');
+        header('Location: ' . url('admin/articles'));
         exit;
     }
 }

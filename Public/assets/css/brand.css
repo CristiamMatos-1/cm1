@@ -1,0 +1,105 @@
+/*
+ * coninfoms - identidade visual
+ * Dark Blue #182C48 | Slate Gray #323A42 | Light Gray #F1F3F5 | Accent Blue #2B5797
+ */
+
+/* Dev Sans: usa a fonte instalada no dispositivo, se existir; senão cai no Inter (Google Fonts). */
+@font-face {
+    font-family: 'Dev Sans';
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+    src: local('Dev Sans Light'), local('DevSans-Light');
+}
+@font-face {
+    font-family: 'Dev Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: local('Dev Sans Regular'), local('Dev Sans'), local('DevSans-Regular');
+}
+@font-face {
+    font-family: 'Dev Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: local('Dev Sans Bold'), local('DevSans-Bold');
+}
+
+:root {
+    --brand-dark: #182C48;
+    --brand-slate: #323A42;
+    --brand-light: #F1F3F5;
+    --brand-accent: #2B5797;
+    --brand-accent-hover: #234779;
+    --whatsapp: #25D366;
+    --whatsapp-hover: #1EBE5A;
+
+    --font-brand: 'Dev Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+    font-family: var(--font-brand);
+}
+
+body {
+    font-family: var(--font-brand);
+    font-weight: 400;
+    color: var(--brand-slate);
+    background-color: var(--brand-light);
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: var(--brand-accent);
+    color: #fff;
+}
+
+/* Conteúdo dinâmico vindo do editor (artigos e páginas) */
+.prose a { color: var(--brand-accent); }
+.prose a:hover { color: var(--brand-accent-hover); }
+.prose h1, .prose h2, .prose h3, .prose h4 { color: var(--brand-dark); }
+.prose img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+
+/* Botão flutuante global do WhatsApp */
+.wa-float {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 9999px;
+    background: var(--whatsapp);
+    color: #fff;
+    font-size: 2rem;
+    box-shadow: 0 10px 25px rgba(24, 44, 72, 0.35);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.wa-float:hover {
+    background: var(--whatsapp-hover);
+    transform: translateY(-3px);
+}
+.wa-float:focus-visible {
+    outline: 3px solid var(--brand-accent);
+    outline-offset: 3px;
+}
+.wa-float::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--whatsapp);
+    animation: wa-pulse 2.4s ease-out infinite;
+}
+@keyframes wa-pulse {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .wa-float::after { animation: none; }
+    .wa-float { transition: none; }
+}

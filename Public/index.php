@@ -27,6 +27,9 @@ spl_autoload_register(function ($class) {
     }
 });
 
+require_once dirname(__DIR__) . '/Core/helpers.php';
+
+use Config\App;
 use Core\Router;
 
 $router = new Router();
@@ -38,6 +41,7 @@ $router->get('/', 'HomeController@index');
 $router->get('/materias', 'HomeController@materias');
 $router->get('/artigo', 'HomeController@artigo');
 $router->get('/pagina', 'HomeController@page');
+$router->get('/contato', 'HomeController@contato');
 
 // ==========================================
 // ROTAS DE AUTENTICAÇÃO
@@ -82,14 +86,9 @@ $router->get('/admin/pages/edit', 'AdminPageController@edit');
 $router->post('/admin/pages/update', 'AdminPageController@update');
 $router->get('/admin/pages/delete', 'AdminPageController@delete');
 
-// NOVA ABORDAGEM: Captura a URI diretamente do servidor, ignorando o mod_rewrite do Apache
-$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-// Limpa a base da URL (onde o projeto está hospedado no cPanel)
-$url = str_replace('/cm1/Public/', '/', $url);
-$url = str_replace('/cm1/', '/', $url);
-$url = str_replace('index.php', '', $url);
-$url = trim($url, '/');
+// Captura a URI diretamente do servidor (independe do mod_rewrite) e remove
+// a pasta onde o projeto está hospedado, detectada automaticamente.
+$url = App::routeFromRequestUri($_SERVER['REQUEST_URI'] ?? '/');
 
 $method = $_SERVER['REQUEST_METHOD'];
 

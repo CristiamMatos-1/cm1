@@ -4,30 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php require dirname(__DIR__, 2) . '/layout/brand-head.php'; ?>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
         <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
+            <span><?= \Config\App::BRAND_NAME ?></span>
             <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
             </a>
-            <a href="/cm1/admin/pages" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
+            <a href="<?= htmlspecialchars(url('admin/pages')) ?>" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
                 <i class="fa-solid fa-file-alt"></i> Páginas Institucionais
             </a>
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>
         </nav>
@@ -41,14 +40,14 @@
                 </button>
                 <h2 class="text-xl font-semibold text-gray-800">Gerenciar Páginas Fixas</h2>
             </div>
-            <a href="/cm1/logout" class="text-sm text-red-600 hover:underline">Sair</a>
+            <a href="<?= htmlspecialchars(url('logout')) ?>" class="text-sm text-red-600 hover:underline">Sair</a>
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
             
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-medium text-gray-700">Lista de Páginas</h3>
-                <a href="/cm1/admin/pages/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium transition">
+                <a href="<?= htmlspecialchars(url('admin/pages/create')) ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium transition">
                     <i class="fa-solid fa-plus mr-1"></i> Nova Página
                 </a>
             </div>
@@ -85,10 +84,10 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="/cm1/admin/pages/edit?id=<?= $page['id'] ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                    <a href="<?= htmlspecialchars(url('admin/pages/edit?id=' . $page['id'])) ?>" class="text-indigo-600 hover:text-indigo-900 mr-3">
                                         <i class="fa-solid fa-edit mr-1"></i> Editar
                                     </a>
-                                    <a href="/cm1/admin/pages/delete?id=<?= $page['id'] ?>" onclick="return confirm('Tem certeza que deseja excluir esta página?');" class="text-red-600 hover:text-red-900">
+                                    <a href="<?= htmlspecialchars(url('admin/pages/delete?id=' . $page['id'])) ?>" onclick="return confirm('Tem certeza que deseja excluir esta página?');" class="text-red-600 hover:text-red-900">
                                         <i class="fa-solid fa-trash mr-1"></i> Excluir
                                     </a>
                                 </td>

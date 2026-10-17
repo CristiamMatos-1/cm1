@@ -20,7 +20,7 @@ class AdminController extends Controller
     private function checkAuth(): void
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
     }

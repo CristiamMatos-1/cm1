@@ -1,10 +1,10 @@
 <?php require dirname(__DIR__) . '/layout/header.php'; ?>
 
 <!-- Page Header -->
-<div class="bg-gray-100 border-b py-10">
+<div class="bg-brand-light border-b py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Sobre a Empresa</h1>
-        <p class="text-gray-500 mt-2">Conheça a história e os valores da CONINFOMS</p>
+        <h1 class="text-3xl font-bold text-brand-dark">Sobre a Empresa</h1>
+        <p class="text-gray-500 mt-2">Conheça a história e os valores da coninfoms</p>
     </div>
 </div>
 
@@ -14,7 +14,7 @@
         <div class="prose max-w-none text-gray-700">
             <h2 class="text-2xl font-bold text-brand-dark mb-4">Nossa Missão</h2>
             <p class="mb-6 leading-relaxed">
-                A CONINFOMS nasceu com o objetivo de simplificar a tecnologia para empresas de todos os tamanhos. 
+                A coninfoms nasceu com o objetivo de simplificar a tecnologia para empresas de todos os tamanhos. 
                 Acreditamos que a inovação não deve ser um obstáculo, mas sim uma ponte para o crescimento sustentável.
             </p>
 
@@ -26,7 +26,7 @@
                 <li><strong>Responsabilidade:</strong> Sistemas seguros e otimizados.</li>
             </ul>
             
-            <div class="bg-blue-50 border-l-4 border-brand-blue p-4 mt-8 rounded-r-md">
+            <div class="bg-brand-light border-l-4 border-brand-accent p-4 mt-8 rounded-r-md">
                 <p class="text-brand-dark font-medium m-0">
                     O conteúdo desta página será dinâmico e gerenciável através do Painel Administrativo em breve.
                 </p>
