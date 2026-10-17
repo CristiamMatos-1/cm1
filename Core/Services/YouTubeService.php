@@ -3,88 +3,96 @@
 namespace Core\Services;
 
 use Models\Setting;
+use Throwable;
 
 class YouTubeService
 {
     private string $apiKey;
     private string $channelId;
+    private Setting $settings;
 
-    public function __construct()
+    public function __construct(?Setting $settings = null)
     {
-        // Agora busca a chave e ID dinamicamente do banco de dados (configurações)
-        $settingModel = new Setting();
-        $this->apiKey = $settingModel->get('youtube_api_key', '');
-        $this->channelId = $settingModel->get('youtube_channel_id', '');
+        $this->settings = $settings ?? new Setting();
+        $this->apiKey = $this->settings->get('youtube_api_key', '');
+        $this->channelId = $this->settings->get('youtube_channel_id', '');
     }
 
-    /**
-     * Busca o ID do último vídeo enviado pelo canal (Prioriza Lives)
-     */
     public function getLatestVideoId(): ?string
     {
-        $settingModel = new Setting();
-        
-        // Função auxiliar para buscar do cache
-        $getCachedId = function() use ($settingModel) {
-            $cached = $settingModel->get('youtube_last_video_id', '');
-            return empty($cached) ? null : $cached;
-        };
+        $cached = $this->cachedId();
+        $cachedAt = (int) $this->settings->get('youtube_last_video_at', '0');
+        if ($cached && (time() - $cachedAt) < 21600) {
+            return $cached;
+        }
 
-        // Se a API Key ou o Channel ID não foram configurados, aborta silenciosamente
-        if (empty($this->apiKey) || empty($this->channelId)) {
-            error_log("YouTube API: Falta apiKey ou channelId");
-            return $getCachedId(); // Tenta retornar o último salvo
+        if ($this->apiKey === '' || $this->channelId === '') {
+            return $cached;
         }
 
         if (!function_exists('curl_init')) {
-            error_log("YouTube API: Extensão cURL não está instalada ou ativada no PHP");
-            return $getCachedId();
+            error_log('YouTube API: cURL indisponível');
+            return $cached;
         }
 
-        // TENTATIVA 1: Busca se há alguma Live acontecendo agora
-        $liveUrl = "https://www.googleapis.com/youtube/v3/search?key={$this->apiKey}&channelId={$this->channelId}&part=snippet,id&type=video&eventType=live&maxResults=1";
-        
-        $ch = curl_init($liveUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $liveResponse = curl_exec($ch);
-        $liveHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $liveId = $this->searchVideo('eventType=live');
+        if ($liveId) {
+            $this->storeCache($liveId);
+            return $liveId;
+        }
 
-        if ($liveHttpCode === 200 && $liveResponse) {
-            $liveData = json_decode($liveResponse, true);
-            if (!empty($liveData['items'][0]['id']['videoId'])) {
-                $videoId = $liveData['items'][0]['id']['videoId'];
-                $settingModel->set('youtube_last_video_id', $videoId); // Salva em cache
-                return $videoId;
+        $latestId = $this->searchVideo('order=date');
+        if ($latestId) {
+            $this->storeCache($latestId);
+            return $latestId;
+        }
+
+        return $cached;
+    }
+
+    private function searchVideo(string $extraQuery): ?string
+    {
+        $url = "https://www.googleapis.com/youtube/v3/search?key=" . urlencode($this->apiKey)
+            . "&channelId=" . urlencode($this->channelId)
+            . "&part=snippet,id&type=video&maxResults=1&{$extraQuery}";
+
+        try {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 5,
+                CURLOPT_CONNECTTIMEOUT => 3,
+            ]);
+            $response = curl_exec($ch);
+            $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 403) {
+                error_log('YouTube API: cota excedida ou chave inválida.');
+                return null;
             }
-        } else if ($liveHttpCode === 403) {
-            // Cota excedida ou chave inválida
-            error_log("YouTube API Quota Excedida ou Chave Inválida. Retornando cache.");
-            return $getCachedId();
-        }
 
-        // TENTATIVA 2: Se não tem Live, busca o último vídeo normal enviado
-        $url = "https://www.googleapis.com/youtube/v3/search?key={$this->apiKey}&channelId={$this->channelId}&part=snippet,id&order=date&maxResults=1&type=video";
+            if ($httpCode !== 200 || !is_string($response)) {
+                return null;
+            }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode === 200 && $response) {
             $data = json_decode($response, true);
-            if (!empty($data['items'][0]['id']['videoId'])) {
-                $videoId = $data['items'][0]['id']['videoId'];
-                $settingModel->set('youtube_last_video_id', $videoId); // Salva em cache
-                return $videoId;
-            }
-        } else {
-            error_log("YouTube API Erro HTTP {$httpCode}: " . print_r($response, true));
+            return $data['items'][0]['id']['videoId'] ?? null;
+        } catch (Throwable $e) {
+            error_log('YouTube API: ' . $e->getMessage());
+            return null;
         }
+    }
 
-        // Se tudo falhar, tenta retornar o último vídeo que deu certo (Cache)
-        return $getCachedId();
+    private function cachedId(): ?string
+    {
+        $cached = $this->settings->get('youtube_last_video_id', '');
+        return $cached === '' ? null : $cached;
+    }
+
+    private function storeCache(string $videoId): void
+    {
+        $this->settings->set('youtube_last_video_id', $videoId);
+        $this->settings->set('youtube_last_video_at', (string) time());
     }
 }

@@ -3,172 +3,106 @@
 namespace Controllers;
 
 use Core\Controller;
+use Core\Services\SiteContextService;
 use Core\Services\YouTubeService;
-use Models\Setting;
 use Models\Article;
+use Models\Page;
+use Models\Setting;
+use Throwable;
 
 class HomeController extends Controller
 {
-    /**
-     * Página inicial do site
-     */
+    private SiteContextService $siteContext;
+
+    public function __construct()
+    {
+        $this->siteContext = new SiteContextService();
+    }
+
     public function index(): void
     {
-        $ytService = new YouTubeService();
-        $latestVideoId = $ytService->getLatestVideoId();
+        $latestVideoId = null;
+        try {
+            $latestVideoId = (new YouTubeService())->getLatestVideoId();
+        } catch (Throwable $e) {
+            error_log('YouTubeService: ' . $e->getMessage());
+        }
 
-        // Instancia o model de configurações
-        $settingModel = new Setting();
-        
-        // Pega as configurações de WhatsApp do banco de dados (ou usa padrão)
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
-        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá! Gostaria de mais informações sobre os serviços da CONINFOMS.');
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
-        
-        // Cria a URL pronta do WhatsApp
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
+        $settings = new Setting();
+        $articles = [];
+        try {
+            $articles = (new Article())->getPublished(3);
+        } catch (Throwable $e) {
+            $articles = [];
+        }
 
-        // Busca os últimos artigos publicados
-        $articleModel = new Article();
-        $latestArticles = $articleModel->getPublished(3); // Pega os 3 mais recentes
-
-        // Textos Dinâmicos da Home
-        $heroTitle = $settingModel->get('hero_title', 'Inovação e Tecnologia para o seu Negócio');
-        $heroSubtitle = $settingModel->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.');
-        
-        $heroBtn1Text = $settingModel->get('hero_btn1_text', 'Conheça a Empresa');
-        $heroBtn1Link = $settingModel->get('hero_btn1_link', '/cm1/pagina?slug=sobre-a-empresa');
-        $heroBtn2Text = $settingModel->get('hero_btn2_text', 'Nossos Serviços');
-        $heroBtn2Link = $settingModel->get('hero_btn2_link', '#servicos');
-
-        $articlesSectionTitle = $settingModel->get('articles_section_title', 'Nossas Últimas Matérias');
-        $newsSectionTitle = $settingModel->get('news_section_title', 'Últimas Novidades');
-
-        $youtubeSectionTitle = $settingModel->get('youtube_section_title', 'Acompanhe nosso Canal');
-        $youtubeSectionSubtitle = $settingModel->get('youtube_section_subtitle', 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.');
-        $youtubeChannelId = $settingModel->get('youtube_channel_id', '');
-
-        // Renderiza a view 'Views/home/index.php' passando os dados
-        $this->render('home/index', [
-            'title' => 'CONINFOMS - Soluções em Tecnologia',
+        $this->render('home/index', array_merge($this->siteContext->layoutData(), [
+            'title' => $settings->get('company_name', 'CONINFOMS') . ' - Soluções em Tecnologia',
             'latestVideoId' => $latestVideoId,
-            'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone,
-            'articles' => $latestArticles,
-            'heroTitle' => $heroTitle,
-            'heroSubtitle' => $heroSubtitle,
-            'heroBtn1Text' => $heroBtn1Text,
-            'heroBtn1Link' => $heroBtn1Link,
-            'heroBtn2Text' => $heroBtn2Text,
-            'heroBtn2Link' => $heroBtn2Link,
-            'articlesSectionTitle' => $articlesSectionTitle,
-            'newsSectionTitle' => $newsSectionTitle,
-            'youtubeSectionTitle' => $youtubeSectionTitle,
-            'youtubeSectionSubtitle' => $youtubeSectionSubtitle,
-            'youtubeChannelId' => $youtubeChannelId
-        ]);
+            'articles' => $articles,
+            'heroTitle' => $settings->get('hero_title', 'Inovação e Tecnologia para o seu Negócio'),
+            'heroSubtitle' => $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.'),
+            'heroBtn1Text' => $settings->get('hero_btn1_text', 'Conheça a Empresa'),
+            'heroBtn1Link' => $settings->get('hero_btn1_link', url('pagina', ['slug' => 'sobre-a-empresa'])),
+            'heroBtn2Text' => $settings->get('hero_btn2_text', 'Nossos Serviços'),
+            'heroBtn2Link' => $settings->get('hero_btn2_link', '#servicos'),
+            'articlesSectionTitle' => $settings->get('articles_section_title', 'Nossas Últimas Matérias'),
+            'newsSectionTitle' => $settings->get('news_section_title', 'Últimas Novidades'),
+            'youtubeSectionTitle' => $settings->get('youtube_section_title', 'Acompanhe nosso Canal'),
+            'youtubeSectionSubtitle' => $settings->get('youtube_section_subtitle', 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.'),
+            'youtubeChannelId' => $settings->get('youtube_channel_id', ''),
+        ]));
     }
-    
-    /**
-     * Página dinâmica genérica
-     */
+
     public function page(): void
     {
-        $slug = $_GET['slug'] ?? '';
-        if (empty($slug)) {
-            header('Location: /cm1/');
-            exit;
+        $slug = trim((string) ($_GET['slug'] ?? ''));
+        if ($slug === '') {
+            $this->redirect('');
         }
 
-        $pageModel = new \Models\Page();
-        $page = $pageModel->findBySlug($slug);
-
+        $page = (new Page())->findBySlug($slug);
         if (!$page) {
-            header('Location: /cm1/');
-            exit;
+            $this->redirect('');
         }
 
-        $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
-        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá!');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
-
-        $this->render('home/page', [
+        $this->render('home/page', array_merge($this->siteContext->layoutData(), [
             'title' => $page['title'] . ' - CONINFOMS',
             'pageTitle' => $page['title'],
             'content' => $page['content'],
-            'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
-        ]);
+        ]));
     }
 
-    /**
-     * Página de listagem de matérias
-     */
     public function materias(): void
     {
-        $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
-        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá!');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-        
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
+        $articles = [];
+        try {
+            $articles = (new Article())->getPublished(100);
+        } catch (Throwable $e) {
+            $articles = [];
+        }
 
-        $articleModel = new Article();
-        $articles = $articleModel->getPublished(100); // Traz as matérias
-
-        $this->render('home/materias', [
+        $this->render('home/materias', array_merge($this->siteContext->layoutData(), [
             'title' => 'Matérias - CONINFOMS',
             'articles' => $articles,
-            'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
-        ]);
+        ]));
     }
 
-    /**
-     * Exibe a leitura completa de um artigo
-     */
     public function artigo(): void
     {
-        $slug = $_GET['slug'] ?? '';
-
-        if (empty($slug)) {
-            header('Location: /cm1/');
-            exit;
+        $slug = trim((string) ($_GET['slug'] ?? ''));
+        if ($slug === '') {
+            $this->redirect('');
         }
 
-        $articleModel = new Article();
-        $article = $articleModel->findBySlug($slug);
-
+        $article = (new Article())->findBySlug($slug);
         if (!$article) {
-            // Se o artigo não for encontrado ou não estiver publicado
-            header('Location: /cm1/');
-            exit;
+            $this->redirect('');
         }
 
-        // WhatsApp genérico para manter o footer funcionando
-        $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
-        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá! Gostaria de mais informações.');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
-
-        $this->render('home/article', [
+        $this->render('home/article', array_merge($this->siteContext->layoutData(), [
             'title' => $article['title'] . ' - CONINFOMS',
             'article' => $article,
-            'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
-        ]);
+        ]));
     }
 }

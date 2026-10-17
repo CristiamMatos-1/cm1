@@ -1,0 +1,26 @@
+# Front controller: o DocumentRoot do cPanel aponta para /cm1 (raiz do projeto),
+# mas a aplicação vive em Public/. Sem estas regras, /cm1 e /cm1/login dão 404.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /cm1/
+
+    # Bloqueia acesso HTTP a pastas internas (código, sessões, banco, views)
+    RewriteRule ^(Config|Core|Controllers|Models|Views|sessions|storage|database|tests)(/|$) - [F,L]
+
+    # Arquivos reais em Public/ (uploads, assets) são servidos diretamente
+    RewriteRule ^Public/ - [L]
+
+    # Qualquer outra URI (/, /login, /admin, /cm1 residual) cai no front controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ Public/$1 [L]
+</IfModule>
+
+# Garante que /cm1 e /cm1/ renderizem a home mesmo sem rewrite em algum host
+DirectoryIndex Public/index.php index.php
+
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

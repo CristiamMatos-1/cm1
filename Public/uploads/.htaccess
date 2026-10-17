@@ -1,0 +1,5 @@
+# Uploads nunca devem executar PHP
+php_flag engine off
+<FilesMatch "\.(php|phtml|phar|php[0-9]|htaccess)$">
+    Require all denied
+</FilesMatch>

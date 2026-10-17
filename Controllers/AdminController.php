@@ -2,37 +2,34 @@
 
 namespace Controllers;
 
-use Core\Controller;
+use Core\Auth;
+use Models\Article;
+use Models\Page;
+use Models\User;
+use Throwable;
 
-class AdminController extends Controller
+class AdminController extends BaseAdminController
 {
-    /**
-     * Construtor verifica se o usuário está logado em todas as rotas deste controller
-     */
-    public function __construct()
-    {
-        $this->checkAuth();
-    }
-
-    /**
-     * Verifica a sessão
-     */
-    private function checkAuth(): void
-    {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
-            exit;
-        }
-    }
-
-    /**
-     * Dashboard Principal do Admin
-     */
     public function index(): void
     {
+        $articleCount = 0;
+        $pageCount = 0;
+        $userCount = 0;
+
+        try {
+            $articleCount = (new Article())->countAll();
+            $pageCount = count((new Page())->getAll());
+            $userCount = (new User())->count();
+        } catch (Throwable $e) {
+            error_log('Dashboard stats: ' . $e->getMessage());
+        }
+
         $this->render('admin/dashboard', [
             'title' => 'Dashboard - Admin',
-            'user_name' => $_SESSION['user_name']
+            'user_name' => Auth::name(),
+            'articleCount' => $articleCount,
+            'pageCount' => $pageCount,
+            'userCount' => $userCount,
         ]);
     }
 }

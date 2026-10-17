@@ -1,326 +1,172 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-100 flex h-screen overflow-hidden">
+<?php
+$currentNav = 'settings';
+$pageHeading = 'Configurações Gerais';
+$settings = $settings ?? [];
+require __DIR__ . '/partials/header.php';
+?>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
-        <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
-            <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
-                <i class="fa-solid fa-times text-xl"></i>
-            </button>
-        </div>
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
-                <i class="fa-solid fa-chart-line"></i> Dashboard
-            </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
-                <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
-            </a>
-            <a href="/cm1/admin/users" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
-                <i class="fa-solid fa-users"></i> Usuários
-            </a>
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
-                <i class="fa-solid fa-cog"></i> Configurações
-            </a>
-        </nav>
-    </aside>
+<?php if (!empty($msg)): ?>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert"><p><?= e($msg) ?></p></div>
+<?php endif; ?>
 
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
-            <div class="flex items-center gap-4">
-                <button id="open-sidebar" class="md:hidden text-gray-600 hover:text-gray-900 mr-2">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <h2 class="text-xl font-semibold text-gray-800">Configurações Gerais</h2>
+<form action="<?= url('admin/settings/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <?= csrf_field() ?>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Identidade Visual</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">Nome da Empresa</label>
+                <input type="text" name="company_name" id="company_name" value="<?= e($settings['company_name'] ?? 'CONINFOMS') ?>" class="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
             </div>
-            <a href="/cm1/logout" class="text-sm text-red-600 hover:underline">Sair</a>
-        </header>
-
-        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
-            
-            <?php if (!empty($msg)): ?>
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
-                    <p><?= htmlspecialchars($msg) ?></p>
-                </div>
-            <?php endif; ?>
-
-            <form action="/cm1/admin/settings/store" method="POST" enctype="multipart/form-data" class="space-y-6">
-                
-                <!-- Sessão Marca (Nome e Logo) -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-building text-brand-blue text-xl"></i> Identidade Visual
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">Nome da Empresa</label>
-                            <input type="text" name="company_name" id="company_name" 
-                                   value="<?= htmlspecialchars($settings['company_name'] ?? 'CONINFOMS') ?>"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                        <div>
-                            <label for="company_logo" class="block text-sm font-medium text-gray-700 mb-2">Logotipo da Empresa</label>
-                            <?php if (!empty($settings['company_logo'])): ?>
-                                <div class="mb-3 flex items-center gap-4">
-                                    <img src="/cm1/Public<?= htmlspecialchars($settings['company_logo']) ?>" alt="Logo Atual" class="h-12 w-auto object-contain border p-1 rounded">
-                                    <label class="inline-flex items-center text-sm text-red-600 cursor-pointer">
-                                        <input type="checkbox" name="remove_logo" value="1" class="mr-2"> Remover Logo
-                                    </label>
-                                </div>
-                            <?php endif; ?>
-                            <input type="file" name="company_logo" id="company_logo" accept="image/jpeg, image/png, image/webp"
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
+            <div>
+                <label for="company_logo" class="block text-sm font-medium text-gray-700 mb-2">Logotipo</label>
+                <?php if (!empty($settings['company_logo'])): ?>
+                    <div class="mb-3 flex items-center gap-4">
+                        <img src="<?= asset($settings['company_logo']) ?>" alt="Logo Atual" class="h-12 w-auto object-contain border p-1 rounded">
+                        <label class="inline-flex items-center text-sm text-red-600 cursor-pointer">
+                            <input type="checkbox" name="remove_logo" value="1" class="mr-2"> Remover Logo
+                        </label>
                     </div>
-                </div>
-
-                <!-- Sessão Textos da Página Inicial (Frontend) -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-orange-500 text-xl"></i> Textos da Página Inicial (Frontend)
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="hero_title" class="block text-sm font-medium text-gray-700 mb-2">Título Principal (Banner Azul)</label>
-                                <input type="text" name="hero_title" id="hero_title" 
-                                       value="<?= htmlspecialchars($settings['hero_title'] ?? 'Inovação e Tecnologia para o seu Negócio') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="hero_subtitle" class="block text-sm font-medium text-gray-700 mb-2">Subtítulo (Banner Azul)</label>
-                                <textarea name="hero_subtitle" id="hero_subtitle" rows="2"
-                                          class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5"><?= htmlspecialchars($settings['hero_subtitle'] ?? 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.') ?></textarea>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="hero_btn1_text" class="block text-sm font-medium text-gray-700 mb-2">Botão 1 - Texto <span class="text-xs text-gray-500 font-normal">(Deixe vazio para ocultar)</span></label>
-                                <input type="text" name="hero_btn1_text" id="hero_btn1_text" 
-                                       value="<?= htmlspecialchars($settings['hero_btn1_text'] ?? 'Conheça a Empresa') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="hero_btn1_link" class="block text-sm font-medium text-gray-700 mb-2">Botão 1 - Link de Destino</label>
-                                <input type="text" name="hero_btn1_link" id="hero_btn1_link" 
-                                       value="<?= htmlspecialchars($settings['hero_btn1_link'] ?? '/cm1/pagina?slug=sobre-a-empresa') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                            <div>
-                                <label for="hero_btn2_text" class="block text-sm font-medium text-gray-700 mb-2">Botão 2 - Texto <span class="text-xs text-gray-500 font-normal">(Deixe vazio para ocultar)</span></label>
-                                <input type="text" name="hero_btn2_text" id="hero_btn2_text" 
-                                       value="<?= htmlspecialchars($settings['hero_btn2_text'] ?? 'Nossos Serviços') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="hero_btn2_link" class="block text-sm font-medium text-gray-700 mb-2">Botão 2 - Link de Destino</label>
-                                <input type="text" name="hero_btn2_link" id="hero_btn2_link" 
-                                       value="<?= htmlspecialchars($settings['hero_btn2_link'] ?? '#servicos') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="articles_section_title" class="block text-sm font-medium text-gray-700 mb-2">Título da Seção de Matérias</label>
-                                <input type="text" name="articles_section_title" id="articles_section_title" 
-                                       value="<?= htmlspecialchars($settings['articles_section_title'] ?? 'Nossas Últimas Matérias') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="news_section_title" class="block text-sm font-medium text-gray-700 mb-2">Título da Seção de Novidades</label>
-                                <input type="text" name="news_section_title" id="news_section_title" 
-                                       value="<?= htmlspecialchars($settings['news_section_title'] ?? 'Últimas Novidades') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="youtube_section_title" class="block text-sm font-medium text-gray-700 mb-2">Subtítulo do Vídeo (Acompanhe nosso Canal)</label>
-                                <input type="text" name="youtube_section_title" id="youtube_section_title" 
-                                       value="<?= htmlspecialchars($settings['youtube_section_title'] ?? 'Acompanhe nosso Canal') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="youtube_section_subtitle" class="block text-sm font-medium text-gray-700 mb-2">Texto da Seção de Vídeo</label>
-                                <textarea name="youtube_section_subtitle" id="youtube_section_subtitle" rows="2"
-                                          class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5"><?= htmlspecialchars($settings['youtube_section_subtitle'] ?? 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.') ?></textarea>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="client_area_text" class="block text-sm font-medium text-gray-700 mb-2">Texto do Botão Área do Cliente <span class="text-xs text-gray-500 font-normal">(Deixe vazio para ocultar)</span></label>
-                                <input type="text" name="client_area_text" id="client_area_text" 
-                                       value="<?= htmlspecialchars($settings['client_area_text'] ?? 'Área do Cliente') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="client_area_link" class="block text-sm font-medium text-gray-700 mb-2">Link da Área do Cliente</label>
-                                <input type="url" name="client_area_link" id="client_area_link" 
-                                       value="<?= htmlspecialchars($settings['client_area_link'] ?? 'https://coninfoms.com.br/cm/') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-6 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="footer_about_text" class="block text-sm font-medium text-gray-700 mb-2">Texto Descritivo do Rodapé (Logo/Sobre)</label>
-                                <textarea name="footer_about_text" id="footer_about_text" rows="2"
-                                          class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5"><?= htmlspecialchars($settings['footer_about_text'] ?? 'Soluções em tecnologia da informação. Trazendo inovação e estabilidade para o seu negócio.') ?></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sessão Contato -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-address-book text-blue-500 text-xl"></i> Contatos do Rodapé
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">E-mail de Contato</label>
-                            <input type="email" name="contact_email" id="contact_email" 
-                                   value="<?= htmlspecialchars($settings['contact_email'] ?? 'contato@coninfoms.com.br') ?>"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                        <div>
-                            <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">Telefone Principal</label>
-                            <input type="text" name="contact_phone" id="contact_phone" 
-                                   value="<?= htmlspecialchars($settings['contact_phone'] ?? '(00) 0000-0000') ?>"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sessão WhatsApp -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-green-500 text-xl"></i> Integração WhatsApp
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="whatsapp_number" class="block text-sm font-medium text-gray-700 mb-2">Número (Apenas números, com DDI + DDD)</label>
-                            <input type="text" name="whatsapp_number" id="whatsapp_number" 
-                                   value="<?= htmlspecialchars($settings['whatsapp_number'] ?? '556799999999') ?>"
-                                   placeholder="Ex: 556799999999"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            <p class="text-xs text-gray-500 mt-1">Exemplo Brasil: 55 (DDI) 67 (DDD) 99999999 (Número)</p>
-                        </div>
-                        <div>
-                            <label for="whatsapp_message" class="block text-sm font-medium text-gray-700 mb-2">Mensagem Padrão</label>
-                            <input type="text" name="whatsapp_message" id="whatsapp_message" 
-                                   value="<?= htmlspecialchars($settings['whatsapp_message'] ?? 'Olá! Gostaria de mais informações sobre os serviços da CONINFOMS.') ?>"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sessão YouTube -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-brands fa-youtube text-red-500 text-xl"></i> Canal do YouTube (Página Inicial)
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="youtube_channel_id" class="block text-sm font-medium text-gray-700 mb-2">ID do Canal (Channel ID)</label>
-                            <input type="text" name="youtube_channel_id" id="youtube_channel_id" 
-                                   value="<?= htmlspecialchars($settings['youtube_channel_id'] ?? '') ?>"
-                                   placeholder="Ex: UC_x5XG1OV2P6uZZ5FSM9Ttw"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                        <div>
-                            <label for="youtube_api_key" class="block text-sm font-medium text-gray-700 mb-2">API Key (Google Cloud Console)</label>
-                            <input type="text" name="youtube_api_key" id="youtube_api_key" 
-                                   value="<?= htmlspecialchars($settings['youtube_api_key'] ?? '') ?>"
-                                   placeholder="Sua chave de API do YouTube Data v3"
-                                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sessão Redes Sociais (Postagem Automática) -->
-                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-share-nodes text-indigo-500 text-xl"></i> Postagem Automática (Facebook & Instagram)
-                    </h3>
-                    <p class="text-sm text-gray-500 mb-6">Preencha as chaves da API Graph do Facebook Developers para que o sistema publique automaticamente suas novas matérias nas redes sociais.</p>
-                    
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="facebook_page_id" class="block text-sm font-medium text-gray-700 mb-2">ID da Página do Facebook</label>
-                                <input type="text" name="facebook_page_id" id="facebook_page_id" 
-                                       value="<?= htmlspecialchars($settings['facebook_page_id'] ?? '') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="facebook_access_token" class="block text-sm font-medium text-gray-700 mb-2">Token de Acesso (Página)</label>
-                                <input type="text" name="facebook_access_token" id="facebook_access_token" 
-                                       value="<?= htmlspecialchars($settings['facebook_access_token'] ?? '') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-4 border-gray-200">
-                            <div>
-                                <label for="instagram_account_id" class="block text-sm font-medium text-gray-700 mb-2">ID da Conta Business do Instagram</label>
-                                <input type="text" name="instagram_account_id" id="instagram_account_id" 
-                                       value="<?= htmlspecialchars($settings['instagram_account_id'] ?? '') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                            <div>
-                                <label for="instagram_access_token" class="block text-sm font-medium text-gray-700 mb-2">Token de Acesso (Instagram)</label>
-                                <input type="text" name="instagram_access_token" id="instagram_access_token" 
-                                       value="<?= htmlspecialchars($settings['instagram_access_token'] ?? '') ?>"
-                                       class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition">
-                        <i class="fa-solid fa-save mr-2"></i> Salvar Configurações
-                    </button>
-                </div>
-            </form>
-        </main>
+                <?php endif; ?>
+                <input type="file" name="company_logo" id="company_logo" accept="image/jpeg, image/png, image/webp" class="block w-full text-sm text-gray-500">
+            </div>
+        </div>
     </div>
 
-    <!-- Overlay para o menu mobile -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden md:hidden"></div>
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-800">Textos da Página Inicial</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título Principal</label>
+                <input type="text" name="hero_title" value="<?= e($settings['hero_title'] ?? 'Inovação e Tecnologia para o seu Negócio') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
+                <textarea name="hero_subtitle" rows="2" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5"><?= e($settings['hero_subtitle'] ?? 'A CONINFOMS entrega soluções de ponta.') ?></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Botão 1 - Texto</label>
+                <input type="text" name="hero_btn1_text" value="<?= e($settings['hero_btn1_text'] ?? 'Conheça a Empresa') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Botão 1 - Link</label>
+                <input type="text" name="hero_btn1_link" value="<?= e($settings['hero_btn1_link'] ?? url('pagina', ['slug' => 'sobre-a-empresa'])) ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Botão 2 - Texto</label>
+                <input type="text" name="hero_btn2_text" value="<?= e($settings['hero_btn2_text'] ?? 'Nossos Serviços') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Botão 2 - Link</label>
+                <input type="text" name="hero_btn2_link" value="<?= e($settings['hero_btn2_link'] ?? '#servicos') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título da Seção de Matérias</label>
+                <input type="text" name="articles_section_title" value="<?= e($settings['articles_section_title'] ?? 'Nossas Últimas Matérias') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título da Seção de Novidades</label>
+                <input type="text" name="news_section_title" value="<?= e($settings['news_section_title'] ?? 'Últimas Novidades') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título do Vídeo</label>
+                <input type="text" name="youtube_section_title" value="<?= e($settings['youtube_section_title'] ?? 'Acompanhe nosso Canal') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Texto da Seção de Vídeo</label>
+                <textarea name="youtube_section_subtitle" rows="2" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5"><?= e($settings['youtube_section_subtitle'] ?? 'Fique por dentro das últimas tendências.') ?></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Texto Área do Cliente</label>
+                <input type="text" name="client_area_text" value="<?= e($settings['client_area_text'] ?? 'Área do Cliente') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Link Área do Cliente</label>
+                <input type="url" name="client_area_link" value="<?= e($settings['client_area_link'] ?? 'https://coninfoms.com.br/cm/') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Texto do Rodapé</label>
+            <textarea name="footer_about_text" rows="2" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5"><?= e($settings['footer_about_text'] ?? 'Soluções em tecnologia da informação.') ?></textarea>
+        </div>
+    </div>
 
-    <script>
-        // Lógica do Menu Mobile
-        const sidebar = document.getElementById('sidebar');
-        const openBtn = document.getElementById('open-sidebar');
-        const closeBtn = document.getElementById('close-sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Contatos do Rodapé</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                <input type="email" name="contact_email" value="<?= e($settings['contact_email'] ?? 'contato@coninfoms.com.br') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
+                <input type="text" name="contact_phone" value="<?= e($settings['contact_phone'] ?? '(00) 0000-0000') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+    </div>
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">WhatsApp</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Número (DDI+DDD)</label>
+                <input type="text" name="whatsapp_number" value="<?= e($settings['whatsapp_number'] ?? '556799999999') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mensagem Padrão</label>
+                <input type="text" name="whatsapp_message" value="<?= e($settings['whatsapp_message'] ?? 'Olá! Gostaria de mais informações.') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+    </div>
 
-        if(openBtn) openBtn.addEventListener('click', toggleSidebar);
-        if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-        if(overlay) overlay.addEventListener('click', toggleSidebar);
-    </script>
-</body>
-</html>
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">YouTube</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Channel ID</label>
+                <input type="text" name="youtube_channel_id" value="<?= e($settings['youtube_channel_id'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                <input type="text" name="youtube_api_key" value="<?= e($settings['youtube_api_key'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Gemini IA</h3>
+        <label class="block text-sm font-medium text-gray-700 mb-2">API Key do Gemini</label>
+        <input type="text" name="gemini_api_key" value="<?= e($settings['gemini_api_key'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-800">Postagem Automática (Facebook e Instagram)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ID da Página do Facebook</label>
+                <input type="text" name="facebook_page_id" value="<?= e($settings['facebook_page_id'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Token de Acesso (Página)</label>
+                <input type="text" name="facebook_access_token" value="<?= e($settings['facebook_access_token'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ID do Instagram Business</label>
+                <input type="text" name="instagram_account_id" value="<?= e($settings['instagram_account_id'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Token de Acesso (Instagram)</label>
+                <input type="text" name="instagram_access_token" value="<?= e($settings['instagram_access_token'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 shadow-sm">
+            <i class="fa-solid fa-save mr-2"></i> Salvar Configurações
+        </button>
+    </div>
+</form>
+
+<?php require __DIR__ . '/partials/footer.php'; ?>
