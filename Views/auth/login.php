@@ -10,14 +10,14 @@ if (empty($_SESSION['csrf_token'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <?php require dirname(__DIR__) . '/layout/brand-head.php'; ?>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
+<body class="bg-brand-light min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md border-t-4 border-brand-accent">
         <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4">C</div>
-            <h1 class="text-2xl font-bold text-gray-800">Acesso Restrito</h1>
+            <div class="w-16 h-16 bg-brand-dark rounded-full flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4">c</div>
+            <h1 class="text-2xl font-bold text-brand-dark">Acesso Restrito</h1>
             <p class="text-gray-500 text-sm">Insira suas credenciais para acessar o painel</p>
         </div>
 
@@ -27,7 +27,7 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
         <?php endif; ?>
 
-        <form action="/cm1/login/authenticate" method="POST">
+        <form action="<?= htmlspecialchars(url('login/authenticate')) ?>" method="POST">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             
             <div class="mb-4">
@@ -51,7 +51,7 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
             
             <div class="mt-4 text-center">
-                <a href="/" class="text-sm text-blue-500 hover:text-blue-800">Voltar para o site</a>
+                <a href="<?= htmlspecialchars(url()) ?>" class="text-sm text-blue-600 hover:text-blue-800">Voltar para o site</a>
             </div>
         </form>
     </div>

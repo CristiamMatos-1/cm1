@@ -14,7 +14,7 @@ class AdminPageController extends Controller
     {
         // Protege o controller: só acessa se estiver logado
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
         
@@ -94,13 +94,13 @@ class AdminPageController extends Controller
     {
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         if (!$id) {
-            header('Location: /cm1/admin/pages');
+            header('Location: ' . url('admin/pages'));
             exit;
         }
 
         $page = $this->pageModel->findById($id);
         if (!$page) {
-            header('Location: /cm1/admin/pages');
+            header('Location: ' . url('admin/pages'));
             exit;
         }
 
@@ -122,7 +122,7 @@ class AdminPageController extends Controller
             
             if (empty($title) || empty($content)) {
                 $_SESSION['error_msg'] = 'Título e conteúdo são obrigatórios.';
-                header('Location: /cm1/admin/pages/create');
+                header('Location: ' . url('admin/pages/create'));
                 exit;
             }
 
@@ -135,7 +135,7 @@ class AdminPageController extends Controller
             $_SESSION['page_msg'] = 'Página criada com sucesso!';
         }
 
-        header('Location: /cm1/admin/pages');
+        header('Location: ' . url('admin/pages'));
         exit;
     }
 
@@ -151,7 +151,7 @@ class AdminPageController extends Controller
             $is_published = isset($_POST['is_published']) ? 1 : 0;
             
             if (!$id || empty($title) || empty($content)) {
-                header("Location: /cm1/admin/pages/edit?id={$id}");
+                header('Location: ' . url("admin/pages/edit?id={$id}"));
                 exit;
             }
 
@@ -164,7 +164,7 @@ class AdminPageController extends Controller
             $_SESSION['page_msg'] = 'Página atualizada com sucesso!';
         }
 
-        header('Location: /cm1/admin/pages');
+        header('Location: ' . url('admin/pages'));
         exit;
     }
 
@@ -179,7 +179,7 @@ class AdminPageController extends Controller
             $_SESSION['page_msg'] = 'Página removida com sucesso!';
         }
         
-        header('Location: /cm1/admin/pages');
+        header('Location: ' . url('admin/pages'));
         exit;
     }
 }

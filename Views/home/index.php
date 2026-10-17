@@ -1,25 +1,25 @@
 <?php require dirname(__DIR__) . '/layout/header.php'; ?>
 
 <!-- Hero Section -->
-<section class="bg-brand-blue text-white py-20">
+<section class="bg-brand-dark text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center md:text-left md:w-2/3">
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                <?= htmlspecialchars($heroTitle ?? 'Inovação e Tecnologia para o seu Negócio') ?>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                <?= e($heroTitle ?? 'Inovação e Tecnologia para o seu Negócio') ?>
             </h1>
-            <p class="text-lg md:text-xl text-blue-100 mb-8">
-                <?= htmlspecialchars($heroSubtitle ?? 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.') ?>
+            <p class="text-lg md:text-xl font-light text-brand-light/80 mb-8">
+                <?= e($heroSubtitle ?? 'A coninfoms entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.') ?>
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <?php if (!empty(trim($heroBtn1Text ?? ''))): ?>
-                    <a href="<?= htmlspecialchars($heroBtn1Link ?? '#') ?>" class="bg-white text-brand-blue font-bold py-3 px-8 rounded-md hover:bg-gray-100 transition shadow-lg text-center">
-                        <?= htmlspecialchars($heroBtn1Text) ?>
+                    <a href="<?= htmlspecialchars(resolve_link($heroBtn1Link ?? '#')) ?>" class="bg-brand-accent text-white font-bold py-3 px-8 rounded-md hover:bg-blue-700 transition shadow-lg text-center">
+                        <?= e($heroBtn1Text) ?>
                     </a>
                 <?php endif; ?>
                 
                 <?php if (!empty(trim($heroBtn2Text ?? ''))): ?>
-                    <a href="<?= htmlspecialchars($heroBtn2Link ?? '#') ?>" class="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-md hover:bg-white hover:text-brand-blue transition text-center">
-                        <?= htmlspecialchars($heroBtn2Text) ?>
+                    <a href="<?= htmlspecialchars(resolve_link($heroBtn2Link ?? '#')) ?>" class="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-md hover:bg-white hover:text-brand-dark transition text-center">
+                        <?= e($heroBtn2Text) ?>
                     </a>
                 <?php endif; ?>
             </div>
@@ -28,11 +28,11 @@
 </section>
 
 <!-- Seção de Artigos / Matérias Recentes -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-brand-light">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900"><?= htmlspecialchars($articlesSectionTitle ?? 'Nossas Últimas Matérias') ?></h2>
-            <div class="w-24 h-1 bg-brand-blue mx-auto mt-4"></div>
+            <h2 class="text-3xl font-bold text-brand-dark"><?= e($articlesSectionTitle ?? 'Nossas Últimas Matérias') ?></h2>
+            <div class="w-24 h-1 bg-brand-accent mx-auto mt-4"></div>
         </div>
 
         <?php if (!empty($articles)): ?>
@@ -40,7 +40,7 @@
                 <?php foreach ($articles as $article): ?>
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <?php if ($article['featured_image']): ?>
-                            <img src="/cm1/Public<?= htmlspecialchars($article['featured_image']) ?>" alt="<?= htmlspecialchars($article['title']) ?>" class="w-full h-48 object-cover">
+                            <img src="<?= htmlspecialchars(asset($article['featured_image'])) ?>" alt="<?= e($article['title']) ?>" class="w-full h-48 object-cover">
                         <?php else: ?>
                             <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-image text-4xl"></i>
@@ -48,16 +48,16 @@
                         <?php endif; ?>
                         
                         <div class="p-6">
-                            <div class="text-xs text-brand-blue font-semibold mb-2 uppercase tracking-wide">
+                            <div class="text-xs text-brand-accent font-semibold mb-2 uppercase tracking-wide">
                                 <?= date('d M, Y', strtotime($article['created_at'])) ?>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
-                                <?= htmlspecialchars($article['title']) ?>
+                            <h3 class="text-xl font-bold text-brand-dark mb-3 line-clamp-2">
+                                <?= e($article['title']) ?>
                             </h3>
                             <p class="text-gray-600 mb-4 line-clamp-3">
-                                <?= strip_tags($article['content']) ?>
+                                <?= \Config\App::fixBrand(strip_tags($article['content'])) ?>
                             </p>
-                            <a href="/cm1/artigo?slug=<?= htmlspecialchars($article['slug']) ?>" class="text-brand-blue font-semibold hover:underline flex items-center gap-1">
+                            <a href="<?= htmlspecialchars(url('artigo?slug=' . rawurlencode($article['slug']))) ?>" class="text-brand-accent font-semibold hover:underline flex items-center gap-1">
                                 Ler mais <i class="fa-solid fa-arrow-right text-sm"></i>
                             </a>
                         </div>
@@ -77,21 +77,21 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900"><?= htmlspecialchars($newsSectionTitle ?? 'Últimas Novidades') ?></h2>
-            <div class="w-24 h-1 bg-brand-blue mx-auto mt-4"></div>
+            <h2 class="text-3xl font-bold text-brand-dark"><?= e($newsSectionTitle ?? 'Últimas Novidades') ?></h2>
+            <div class="w-24 h-1 bg-brand-accent mx-auto mt-4"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-                <h3 class="text-2xl font-bold mb-4 text-gray-800"><?= htmlspecialchars($youtubeSectionTitle ?? 'Acompanhe nosso Canal') ?></h3>
+                <h3 class="text-2xl font-bold mb-4 text-brand-dark"><?= e($youtubeSectionTitle ?? 'Acompanhe nosso Canal') ?></h3>
                 <p class="text-gray-600 mb-6 leading-relaxed">
-                    <?= htmlspecialchars($youtubeSectionSubtitle ?? 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.') ?>
+                    <?= e($youtubeSectionSubtitle ?? 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a coninfoms diretamente no nosso canal do YouTube.') ?>
                 </p>
                 <?php 
                 // Define o link de inscrição com base no ID do canal
                 $subscribeLink = !empty($youtubeChannelId) ? "https://www.youtube.com/channel/" . htmlspecialchars($youtubeChannelId) . "?sub_confirmation=1" : "#"; 
                 ?>
-                <a href="<?= $subscribeLink ?>" target="_blank" class="text-brand-blue font-semibold hover:underline flex items-center gap-2">
+                <a href="<?= $subscribeLink ?>" target="_blank" rel="noopener" class="text-brand-accent font-semibold hover:underline flex items-center gap-2">
                     <i class="fa-brands fa-youtube text-red-600 text-xl"></i> Inscreva-se agora
                 </a>
             </div>

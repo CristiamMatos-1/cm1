@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php require dirname(__DIR__, 2) . '/layout/brand-head.php'; ?>
     <!-- TinyMCE CDN Open Source -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
@@ -22,22 +21,22 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
         <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
+            <span><?= \Config\App::BRAND_NAME ?></span>
             <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
+            <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
                 <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
             </a>
-            <a href="/cm1/admin/pages" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/pages')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-file-alt"></i> Páginas Institucionais
             </a>
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>
         </nav>
@@ -49,7 +48,7 @@
                 <button id="open-sidebar" class="md:hidden text-gray-600 hover:text-gray-900 mr-2">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <a href="/cm1/admin/articles" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+                <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="text-gray-500 hover:text-gray-800"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
                 <h2 class="text-xl font-semibold text-gray-800">Novo Artigo</h2>
             </div>
         </header>
@@ -61,7 +60,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/cm1/admin/articles/store" method="POST" enctype="multipart/form-data" class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+            <form action="<?= htmlspecialchars(url('admin/articles/store')) ?>" method="POST" enctype="multipart/form-data" class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
                 
                 <div class="mb-6">
                     <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Título da Matéria</label>
@@ -157,7 +156,7 @@
                 btnAiText.innerText = 'Gerando...';
 
                 try {
-                    const response = await fetch('/cm1/admin/articles/generate-ai', {
+                    const response = await fetch('<?= url('admin/articles/generate-ai') ?>', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

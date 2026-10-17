@@ -14,7 +14,7 @@ class AuthController extends Controller
     {
         // Se já estiver logado, redireciona para o admin
         if (isset($_SESSION['user_id'])) {
-            header('Location: /cm1/admin');
+            header('Location: ' . url('admin'));
             exit;
         }
 
@@ -33,14 +33,14 @@ class AuthController extends Controller
     public function authenticate(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
 
         // CSRF Token Check (Básico)
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             $_SESSION['login_error'] = 'Sessão expirada ou requisição inválida.';
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
 
@@ -49,7 +49,7 @@ class AuthController extends Controller
 
         if (empty($email) || empty($password)) {
             $_SESSION['login_error'] = 'Preencha todos os campos.';
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
 
@@ -64,11 +64,11 @@ class AuthController extends Controller
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
             
-            header('Location: /cm1/admin');
+            header('Location: ' . url('admin'));
             exit;
         } else {
             $_SESSION['login_error'] = 'E-mail ou senha incorretos.';
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
     }
@@ -80,7 +80,7 @@ class AuthController extends Controller
     {
         session_unset();
         session_destroy();
-        header('Location: /cm1/login');
+        header('Location: ' . url('login'));
         exit;
     }
 }

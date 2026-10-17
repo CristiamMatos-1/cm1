@@ -21,13 +21,11 @@ class HomeController extends Controller
         $settingModel = new Setting();
         
         // Pega as configurações de WhatsApp do banco de dados (ou usa padrão)
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
-        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá! Gostaria de mais informações sobre os serviços da CONINFOMS.');
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
+        $whatsappNumber = $settingModel->get('whatsapp_number', \Config\App::WHATSAPP_DEFAULT_NUMBER);
+        $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá! Gostaria de mais informações sobre os serviços da coninfoms.');
         
         // Cria a URL pronta do WhatsApp
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
+        $whatsappUrl = \Config\App::whatsappUrl($whatsappNumber, $whatsappMessage);
 
         // Busca os últimos artigos publicados
         $articleModel = new Article();
@@ -35,10 +33,10 @@ class HomeController extends Controller
 
         // Textos Dinâmicos da Home
         $heroTitle = $settingModel->get('hero_title', 'Inovação e Tecnologia para o seu Negócio');
-        $heroSubtitle = $settingModel->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.');
+        $heroSubtitle = $settingModel->get('hero_subtitle', 'A coninfoms entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.');
         
         $heroBtn1Text = $settingModel->get('hero_btn1_text', 'Conheça a Empresa');
-        $heroBtn1Link = $settingModel->get('hero_btn1_link', '/cm1/pagina?slug=sobre-a-empresa');
+        $heroBtn1Link = $settingModel->get('hero_btn1_link', '/pagina?slug=sobre-a-empresa');
         $heroBtn2Text = $settingModel->get('hero_btn2_text', 'Nossos Serviços');
         $heroBtn2Link = $settingModel->get('hero_btn2_link', '#servicos');
 
@@ -46,16 +44,14 @@ class HomeController extends Controller
         $newsSectionTitle = $settingModel->get('news_section_title', 'Últimas Novidades');
 
         $youtubeSectionTitle = $settingModel->get('youtube_section_title', 'Acompanhe nosso Canal');
-        $youtubeSectionSubtitle = $settingModel->get('youtube_section_subtitle', 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.');
+        $youtubeSectionSubtitle = $settingModel->get('youtube_section_subtitle', 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a coninfoms diretamente no nosso canal do YouTube.');
         $youtubeChannelId = $settingModel->get('youtube_channel_id', '');
 
         // Renderiza a view 'Views/home/index.php' passando os dados
         $this->render('home/index', [
-            'title' => 'CONINFOMS - Soluções em Tecnologia',
+            'title' => 'coninfoms - Soluções em Tecnologia',
             'latestVideoId' => $latestVideoId,
             'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone,
             'articles' => $latestArticles,
             'heroTitle' => $heroTitle,
             'heroSubtitle' => $heroSubtitle,
@@ -78,7 +74,12 @@ class HomeController extends Controller
     {
         $slug = $_GET['slug'] ?? '';
         if (empty($slug)) {
-            header('Location: /cm1/');
+            header('Location: ' . url(''));
+            exit;
+        }
+
+        if (strtolower($slug) === 'contato') {
+            header('Location: ' . url('contato'));
             exit;
         }
 
@@ -86,25 +87,36 @@ class HomeController extends Controller
         $page = $pageModel->findBySlug($slug);
 
         if (!$page) {
-            header('Location: /cm1/');
+            header('Location: ' . url(''));
             exit;
         }
 
         $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
+        $whatsappNumber = $settingModel->get('whatsapp_number', \Config\App::WHATSAPP_DEFAULT_NUMBER);
         $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá!');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
+        $whatsappUrl = \Config\App::whatsappUrl($whatsappNumber, $whatsappMessage);
 
         $this->render('home/page', [
-            'title' => $page['title'] . ' - CONINFOMS',
+            'title' => $page['title'] . ' - coninfoms',
             'pageTitle' => $page['title'],
             'content' => $page['content'],
             'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
+        ]);
+    }
+
+    /**
+     * Página de contato: canal único via WhatsApp
+     */
+    public function contato(): void
+    {
+        $settingModel = new Setting();
+        $whatsappNumber = $settingModel->get('whatsapp_number', \Config\App::WHATSAPP_DEFAULT_NUMBER);
+        $whatsappMessage = $settingModel->get('whatsapp_message', \Config\App::WHATSAPP_DEFAULT_MESSAGE);
+
+        $this->render('home/contato', [
+            'title' => 'Contato - coninfoms',
+            'whatsappUrl' => \Config\App::whatsappUrl($whatsappNumber, $whatsappMessage),
+            'whatsappNumber' => $whatsappNumber,
         ]);
     }
 
@@ -114,22 +126,17 @@ class HomeController extends Controller
     public function materias(): void
     {
         $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
+        $whatsappNumber = $settingModel->get('whatsapp_number', \Config\App::WHATSAPP_DEFAULT_NUMBER);
         $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá!');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-        
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
+        $whatsappUrl = \Config\App::whatsappUrl($whatsappNumber, $whatsappMessage);
 
         $articleModel = new Article();
         $articles = $articleModel->getPublished(100); // Traz as matérias
 
         $this->render('home/materias', [
-            'title' => 'Matérias - CONINFOMS',
+            'title' => 'Matérias - coninfoms',
             'articles' => $articles,
             'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
         ]);
     }
 
@@ -141,7 +148,7 @@ class HomeController extends Controller
         $slug = $_GET['slug'] ?? '';
 
         if (empty($slug)) {
-            header('Location: /cm1/');
+            header('Location: ' . url(''));
             exit;
         }
 
@@ -150,25 +157,20 @@ class HomeController extends Controller
 
         if (!$article) {
             // Se o artigo não for encontrado ou não estiver publicado
-            header('Location: /cm1/');
+            header('Location: ' . url(''));
             exit;
         }
 
         // WhatsApp genérico para manter o footer funcionando
         $settingModel = new Setting();
-        $whatsappNumber = $settingModel->get('whatsapp_number', '556799999999');
+        $whatsappNumber = $settingModel->get('whatsapp_number', \Config\App::WHATSAPP_DEFAULT_NUMBER);
         $whatsappMessage = $settingModel->get('whatsapp_message', 'Olá! Gostaria de mais informações.');
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($whatsappMessage);
-
-        $contactEmail = $settingModel->get('contact_email', 'contato@coninfoms.com.br');
-        $contactPhone = $settingModel->get('contact_phone', '(00) 0000-0000');
+        $whatsappUrl = \Config\App::whatsappUrl($whatsappNumber, $whatsappMessage);
 
         $this->render('home/article', [
-            'title' => $article['title'] . ' - CONINFOMS',
+            'title' => $article['title'] . ' - coninfoms',
             'article' => $article,
             'whatsappUrl' => $whatsappUrl,
-            'contactEmail' => $contactEmail,
-            'contactPhone' => $contactPhone
         ]);
     }
 }

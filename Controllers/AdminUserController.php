@@ -13,7 +13,7 @@ class AdminUserController extends Controller
     {
         // Protege o controller: só acessa se estiver logado
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
         
@@ -61,7 +61,7 @@ class AdminUserController extends Controller
 
             if (empty($name) || empty($email) || empty($password)) {
                 $_SESSION['user_error'] = "Todos os campos são obrigatórios para um novo usuário.";
-                header('Location: /cm1/admin/users/create');
+                header('Location: ' . url('admin/users/create'));
                 exit;
             }
 
@@ -73,10 +73,10 @@ class AdminUserController extends Controller
 
             if ($success) {
                 $_SESSION['user_msg'] = "Usuário criado com sucesso!";
-                header('Location: /cm1/admin/users');
+                header('Location: ' . url('admin/users'));
             } else {
                 $_SESSION['user_error'] = "Erro: Este e-mail já está em uso por outro usuário.";
-                header('Location: /cm1/admin/users/create');
+                header('Location: ' . url('admin/users/create'));
             }
             exit;
         }
@@ -92,7 +92,7 @@ class AdminUserController extends Controller
 
         if (!$user) {
             $_SESSION['user_error'] = "Usuário não encontrado.";
-            header('Location: /cm1/admin/users');
+            header('Location: ' . url('admin/users'));
             exit;
         }
 
@@ -115,7 +115,7 @@ class AdminUserController extends Controller
 
             if (empty($name) || empty($email)) {
                 $_SESSION['user_error'] = "Nome e e-mail são obrigatórios.";
-                header("Location: /cm1/admin/users/edit?id={$id}");
+                header('Location: ' . url("admin/users/edit?id={$id}"));
                 exit;
             }
 
@@ -123,7 +123,7 @@ class AdminUserController extends Controller
             $existing = $this->userModel->findByEmail($email);
             if ($existing && $existing['id'] != $id) {
                 $_SESSION['user_error'] = "Este e-mail já está em uso por outro usuário.";
-                header("Location: /cm1/admin/users/edit?id={$id}");
+                header('Location: ' . url("admin/users/edit?id={$id}"));
                 exit;
             }
 
@@ -139,7 +139,7 @@ class AdminUserController extends Controller
                 $_SESSION['user_error'] = "Falha ao atualizar o usuário.";
             }
 
-            header('Location: /cm1/admin/users');
+            header('Location: ' . url('admin/users'));
             exit;
         }
     }
@@ -162,7 +162,7 @@ class AdminUserController extends Controller
             }
         }
 
-        header('Location: /cm1/admin/users');
+        header('Location: ' . url('admin/users'));
         exit;
     }
 }

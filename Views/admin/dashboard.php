@@ -4,34 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php require dirname(__DIR__) . '/layout/brand-head.php'; ?>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
         <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
+            <span><?= \Config\App::BRAND_NAME ?></span>
             <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
+            <a href="<?= htmlspecialchars(url('admin')) ?>" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
             </a>
-            <a href="/cm1/admin/pages" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/pages')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-file-alt"></i> Páginas Institucionais
             </a>
-            <a href="/cm1/admin/users" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/users')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-users"></i> Usuários
             </a>
             <!-- LINK DAS CONFIGURAÇÕES ATUALIZADO AQUI -->
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>
         </nav>
@@ -52,10 +51,10 @@
                 <h2 class="text-xl font-semibold text-gray-800">Visão Geral</h2>
             </div>
             <div class="flex items-center gap-4">
-                <a href="/cm1/" target="_blank" class="text-sm text-gray-500 hover:text-blue-600 flex items-center gap-1">
+                <a href="<?= htmlspecialchars(url('')) ?>" target="_blank" class="text-sm text-gray-500 hover:text-blue-600 flex items-center gap-1">
                     <i class="fa-solid fa-external-link-alt"></i> Ver Site
                 </a>
-                <a href="/cm1/logout" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+                <a href="<?= htmlspecialchars(url('logout')) ?>" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
                     <i class="fa-solid fa-sign-out-alt"></i> Sair
                 </a>
             </div>
@@ -104,12 +103,12 @@
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Atalhos de Páginas</h3>
                     <ul class="space-y-3">
                         <li>
-                            <a href="/cm1/admin/pages" class="flex items-center text-brand-blue hover:text-blue-800 transition">
+                            <a href="<?= htmlspecialchars(url('admin/pages')) ?>" class="flex items-center text-brand-blue hover:text-blue-800 transition">
                                 <i class="fa-solid fa-list w-6 text-gray-400"></i> Listar Todas as Páginas
                             </a>
                         </li>
                         <li>
-                            <a href="/cm1/admin/pages/create" class="flex items-center text-brand-blue hover:text-blue-800 transition">
+                            <a href="<?= htmlspecialchars(url('admin/pages/create')) ?>" class="flex items-center text-brand-blue hover:text-blue-800 transition">
                                 <i class="fa-solid fa-plus w-6 text-gray-400"></i> Criar Nova Página
                             </a>
                         </li>
@@ -121,12 +120,12 @@
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Configurações do Site</h3>
                     <ul class="space-y-3">
                         <li>
-                            <a href="/cm1/admin/settings" class="flex items-center text-brand-blue hover:text-blue-800 transition">
+                            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center text-brand-blue hover:text-blue-800 transition">
                                 <i class="fa-brands fa-whatsapp w-6 text-green-500"></i> Alterar WhatsApp
                             </a>
                         </li>
                         <li>
-                            <a href="/cm1/admin/settings" class="flex items-center text-brand-blue hover:text-blue-800 transition">
+                            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center text-brand-blue hover:text-blue-800 transition">
                                 <i class="fa-brands fa-youtube w-6 text-red-500"></i> Configurar Vídeo do YouTube
                             </a>
                         </li>

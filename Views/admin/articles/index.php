@@ -4,30 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php require dirname(__DIR__, 2) . '/layout/brand-head.php'; ?>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <!-- Sidebar Reutilizada (Poderia estar num layout base do admin) -->
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
         <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
+            <span><?= \Config\App::BRAND_NAME ?></span>
             <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
+            <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
                 <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
             </a>
-            <a href="/cm1/admin/pages" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/pages')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-file-alt"></i> Páginas Institucionais
             </a>
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>
         </nav>
@@ -41,14 +40,14 @@
                 </button>
                 <h2 class="text-xl font-semibold text-gray-800">Gerenciar Artigos</h2>
             </div>
-            <a href="/cm1/logout" class="text-sm text-red-600 hover:underline">Sair</a>
+            <a href="<?= htmlspecialchars(url('logout')) ?>" class="text-sm text-red-600 hover:underline">Sair</a>
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
             
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-medium text-gray-700">Lista de Matérias</h3>
-                <a href="/cm1/admin/articles/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium transition">
+                <a href="<?= htmlspecialchars(url('admin/articles/create')) ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium transition">
                     <i class="fa-solid fa-plus mr-1"></i> Novo Artigo
                 </a>
             </div>
@@ -99,10 +98,10 @@
                                         <?= date('d/m/Y H:i', strtotime($article['created_at'])) ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="/cm1/admin/articles/edit?id=<?= $article['id'] ?>" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded mr-2 transition">
+                                        <a href="<?= htmlspecialchars(url('admin/articles/edit?id=' . $article['id'])) ?>" class="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded mr-2 transition">
                                             <i class="fa-solid fa-edit mr-1"></i> Editar
                                         </a>
-                                        <a href="/cm1/admin/articles/delete?id=<?= $article['id'] ?>" onclick="return confirm('Tem certeza que deseja excluir?');" class="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded transition">
+                                        <a href="<?= htmlspecialchars(url('admin/articles/delete?id=' . $article['id'])) ?>" onclick="return confirm('Tem certeza que deseja excluir?');" class="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded transition">
                                             <i class="fa-solid fa-trash mr-1"></i> Excluir
                                         </a>
                                     </td>
@@ -137,10 +136,10 @@
                                 </div>
                                 
                                 <div class="flex gap-2 pt-3 border-t border-gray-100">
-                                    <a href="/cm1/admin/articles/edit?id=<?= $article['id'] ?>" class="flex-1 text-center bg-indigo-50 text-indigo-700 hover:bg-indigo-100 py-2 rounded-md text-sm font-medium transition">
+                                    <a href="<?= htmlspecialchars(url('admin/articles/edit?id=' . $article['id'])) ?>" class="flex-1 text-center bg-indigo-50 text-indigo-700 hover:bg-indigo-100 py-2 rounded-md text-sm font-medium transition">
                                         <i class="fa-solid fa-edit mr-1"></i> Editar
                                     </a>
-                                    <a href="/cm1/admin/articles/delete?id=<?= $article['id'] ?>" onclick="return confirm('Tem certeza que deseja excluir?');" class="flex-1 text-center bg-red-50 text-red-700 hover:bg-red-100 py-2 rounded-md text-sm font-medium transition">
+                                    <a href="<?= htmlspecialchars(url('admin/articles/delete?id=' . $article['id'])) ?>" onclick="return confirm('Tem certeza que deseja excluir?');" class="flex-1 text-center bg-red-50 text-red-700 hover:bg-red-100 py-2 rounded-md text-sm font-medium transition">
                                         <i class="fa-solid fa-trash mr-1"></i> Excluir
                                     </a>
                                 </div>

@@ -4,30 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php require dirname(__DIR__, 2) . '/layout/brand-head.php'; ?>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
         <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
+            <span><?= \Config\App::BRAND_NAME ?></span>
             <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>
         <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="/cm1/admin" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-chart-line"></i> Dashboard
             </a>
-            <a href="/cm1/admin/articles" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/articles')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-newspaper"></i> Artigos / Matérias
             </a>
-            <a href="/cm1/admin/users" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
+            <a href="<?= htmlspecialchars(url('admin/users')) ?>" class="flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg">
                 <i class="fa-solid fa-users"></i> Usuários
             </a>
-            <a href="/cm1/admin/settings" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
+            <a href="<?= htmlspecialchars(url('admin/settings')) ?>" class="flex items-center gap-3 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-3 rounded-lg transition">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>
         </nav>
@@ -41,13 +40,13 @@
                 </button>
                 <h2 class="text-xl font-semibold text-gray-800">Novo Usuário</h2>
             </div>
-            <a href="/cm1/logout" class="text-sm text-red-600 hover:underline">Sair</a>
+            <a href="<?= htmlspecialchars(url('logout')) ?>" class="text-sm text-red-600 hover:underline">Sair</a>
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
             
             <div class="mb-6">
-                <a href="/cm1/admin/users" class="text-brand-blue hover:underline flex items-center gap-2">
+                <a href="<?= htmlspecialchars(url('admin/users')) ?>" class="text-brand-blue hover:underline flex items-center gap-2">
                     <i class="fa-solid fa-arrow-left"></i> Voltar para a lista
                 </a>
             </div>
@@ -60,7 +59,7 @@
             <?php endif; ?>
 
             <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden max-w-2xl">
-                <form action="/cm1/admin/users/store" method="POST" class="p-6 space-y-6">
+                <form action="<?= htmlspecialchars(url('admin/users/store')) ?>" method="POST" class="p-6 space-y-6">
                     
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo <span class="text-red-500">*</span></label>
@@ -81,7 +80,7 @@
                     </div>
 
                     <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                        <a href="/cm1/admin/users" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                        <a href="<?= htmlspecialchars(url('admin/users')) ?>" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
                             Cancelar
                         </a>
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition">

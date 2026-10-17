@@ -13,7 +13,7 @@ class SettingsController extends Controller
     {
         // Protege o controller: só acessa se estiver logado
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /cm1/login');
+            header('Location: ' . url('login'));
             exit;
         }
         
@@ -53,8 +53,6 @@ class SettingsController extends Controller
                 'youtube_channel_id',
                 'meta_access_token',
                 'meta_page_id',
-                'contact_email',
-                'contact_phone',
                 'hero_title',
                 'hero_subtitle',
                 'hero_btn1_text',
@@ -102,7 +100,7 @@ class SettingsController extends Controller
             $_SESSION['settings_msg'] = 'Configurações atualizadas com sucesso!';
         }
 
-        header('Location: /cm1/admin/settings');
+        header('Location: ' . url('admin/settings'));
         exit;
     }
 }
