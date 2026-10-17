@@ -1,0 +1,9 @@
+---
+# Deploy cPanel (Git Version Control → Deploy HEAD Commit).
+# Ajuste DEPLOYPATH se a conta não for "coninfom" ou se o site não estiver em public_html/cm1.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/coninfom/public_html/cm1
+    - /bin/mkdir -p "$DEPLOYPATH"
+    - /bin/cp -Rf Config Controllers Core Models Views Public database "$DEPLOYPATH/"
+    - /bin/cp -f index.php .htaccess README.md .cpanel.yml "$DEPLOYPATH/"
