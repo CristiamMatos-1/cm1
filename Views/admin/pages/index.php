@@ -20,18 +20,35 @@ require dirname(__DIR__) . '/partials/header.php';
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menus</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             <?php if (empty($pages)): ?>
-                <tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Nenhuma página encontrada.</td></tr>
+                <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Nenhuma página encontrada.</td></tr>
             <?php else: ?>
                 <?php foreach ($pages as $page): ?>
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900"><i class="fa-solid fa-file-alt text-gray-400 mr-2"></i> <?= e($page['title']) ?></div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-wrap gap-1">
+                            <?php if (!empty($page['show_in_header'])): ?>
+                                <span class="px-2 py-0.5 text-xs rounded bg-blue-50 text-blue-700">Menu</span>
+                            <?php endif; ?>
+                            <?php if (!empty($page['show_in_footer'])): ?>
+                                <span class="px-2 py-0.5 text-xs rounded bg-slate-100 text-slate-700">Rodapé</span>
+                            <?php endif; ?>
+                            <?php if (!empty($page['show_in_news'])): ?>
+                                <span class="px-2 py-0.5 text-xs rounded bg-amber-50 text-amber-800">Novidades</span>
+                            <?php endif; ?>
+                            <?php if (empty($page['show_in_header']) && empty($page['show_in_footer']) && empty($page['show_in_news'])): ?>
+                                <span class="text-xs text-gray-400">Nenhum</span>
+                            <?php endif; ?>
+                        </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <?php if ($page['is_published']): ?>

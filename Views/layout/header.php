@@ -5,7 +5,8 @@ use Models\Setting;
 
 $globalCompanyName = 'CONINFOMS';
 $globalCompanyLogo = '';
-$menuPages = [];
+$menuPages = $menuPages ?? [];
+$footerPages = $footerPages ?? [];
 $clientAreaText = 'Área do Cliente';
 $clientAreaLink = 'https://coninfoms.com.br/cm/';
 $socialLinks = $socialLinks ?? [];
@@ -16,7 +17,13 @@ try {
     $globalCompanyLogo = $globalSetting->get('company_logo', '');
     $clientAreaText = $globalSetting->get('client_area_text', 'Área do Cliente');
     $clientAreaLink = $globalSetting->get('client_area_link', 'https://coninfoms.com.br/cm/');
-    $menuPages = (new Page())->getPublished();
+    $pageModel = new Page();
+    if ($menuPages === []) {
+        $menuPages = $pageModel->getPublishedFor(Page::PLACE_HEADER);
+    }
+    if ($footerPages === []) {
+        $footerPages = $pageModel->getPublishedFor(Page::PLACE_FOOTER);
+    }
     if ($socialLinks === []) {
         $socialLinks = (new SocialLinksService($globalSetting))->links();
     }

@@ -38,10 +38,18 @@ class HomeController extends Controller
             $banners = [];
         }
 
+        $newsPages = [];
+        try {
+            $newsPages = (new Page())->getPublishedFor(Page::PLACE_NEWS);
+        } catch (Throwable $e) {
+            $newsPages = [];
+        }
+
         $this->render('home/index', array_merge($this->siteContext->layoutData(), [
             'title' => $settings->get('company_name', 'CONINFOMS') . ' - Soluções em Tecnologia',
             'banners' => $banners,
             'articles' => $articles,
+            'newsPages' => $newsPages,
             'heroTitle' => $settings->get('hero_title', 'Inovação e Tecnologia para o seu Negócio'),
             'heroSubtitle' => $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.'),
             'heroBtn1Text' => $settings->get('hero_btn1_text', 'Conheça a Empresa'),

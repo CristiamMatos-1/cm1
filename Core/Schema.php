@@ -30,6 +30,7 @@ class Schema
             self::createDownloads($pdo, $db->isSqlite());
             self::createBanners($pdo, $db->isSqlite());
             self::createAnnouncements($pdo, $db->isSqlite());
+            self::ensurePageMenuColumns($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
         } catch (Throwable $e) {
@@ -73,10 +74,17 @@ class Schema
                 `slug` VARCHAR(255) NOT NULL UNIQUE,
                 `content` MEDIUMTEXT NOT NULL,
                 `is_published` TINYINT(1) NOT NULL DEFAULT 1,
+                `show_in_header` TINYINT(1) NOT NULL DEFAULT 1,
+                `show_in_footer` TINYINT(1) NOT NULL DEFAULT 1,
+                `show_in_news` TINYINT(1) NOT NULL DEFAULT 0,
+                `menu_order` INT NOT NULL DEFAULT 0,
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 INDEX `idx_pages_slug` (`slug`),
-                INDEX `idx_pages_published` (`is_published`)
+                INDEX `idx_pages_published` (`is_published`),
+                INDEX `idx_pages_header` (`is_published`, `show_in_header`, `menu_order`),
+                INDEX `idx_pages_footer` (`is_published`, `show_in_footer`, `menu_order`),
+                INDEX `idx_pages_news` (`is_published`, `show_in_news`, `menu_order`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
@@ -244,6 +252,10 @@ class Schema
                 slug TEXT NOT NULL UNIQUE,
                 content TEXT NOT NULL,
                 is_published INTEGER NOT NULL DEFAULT 1,
+                show_in_header INTEGER NOT NULL DEFAULT 1,
+                show_in_footer INTEGER NOT NULL DEFAULT 1,
+                show_in_news INTEGER NOT NULL DEFAULT 0,
+                menu_order INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
@@ -294,7 +306,10 @@ class Schema
             ['title' => 'Contato', 'slug' => 'contato', 'content' => '<p>Conteúdo da página Contato.</p>'],
         ];
 
-        $stmt = $pdo->prepare('INSERT INTO pages (title, slug, content, is_published) VALUES (:title, :slug, :content, 1)');
+        $stmt = $pdo->prepare('
+            INSERT INTO pages (title, slug, content, is_published, show_in_header, show_in_footer, show_in_news, menu_order)
+            VALUES (:title, :slug, :content, 1, 1, 1, 0, 0)
+        ');
         foreach ($defaultPages as $page) {
             $stmt->execute([
                 ':title' => $page['title'],
@@ -302,5 +317,59 @@ class Schema
                 ':content' => $page['content'],
             ]);
         }
+    }
+
+    /**
+     * Migra páginas existentes: colunas de posicionamento no menu.
+     */
+    private static function ensurePageMenuColumns(PDO $pdo, bool $sqlite): void
+    {
+        $columns = $sqlite
+            ? [
+                'show_in_header' => 'INTEGER NOT NULL DEFAULT 1',
+                'show_in_footer' => 'INTEGER NOT NULL DEFAULT 1',
+                'show_in_news' => 'INTEGER NOT NULL DEFAULT 0',
+                'menu_order' => 'INTEGER NOT NULL DEFAULT 0',
+            ]
+            : [
+                'show_in_header' => 'TINYINT(1) NOT NULL DEFAULT 1',
+                'show_in_footer' => 'TINYINT(1) NOT NULL DEFAULT 1',
+                'show_in_news' => 'TINYINT(1) NOT NULL DEFAULT 0',
+                'menu_order' => 'INT NOT NULL DEFAULT 0',
+            ];
+
+        foreach ($columns as $name => $definition) {
+            if (self::tableHasColumn($pdo, 'pages', $name, $sqlite)) {
+                continue;
+            }
+            $pdo->exec("ALTER TABLE pages ADD COLUMN {$name} {$definition}");
+        }
+
+        if ($sqlite) {
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pages_header ON pages (is_published, show_in_header, menu_order)');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pages_footer ON pages (is_published, show_in_footer, menu_order)');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pages_news ON pages (is_published, show_in_news, menu_order)');
+        }
+    }
+
+    private static function tableHasColumn(PDO $pdo, string $table, string $column, bool $sqlite): bool
+    {
+        if ($sqlite) {
+            $stmt = $pdo->query('PRAGMA table_info(' . $table . ')');
+            $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+            foreach ($rows as $row) {
+                if (($row['name'] ?? '') === $column) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        $stmt = $pdo->prepare('
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column
+        ');
+        $stmt->execute([':table' => $table, ':column' => $column]);
+        return (int) $stmt->fetchColumn() > 0;
     }
 }

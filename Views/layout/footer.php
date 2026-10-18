@@ -37,8 +37,8 @@
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="<?= url() ?>" class="hover:text-white transition-colors">Início</a></li>
                         <li><a href="<?= url('suporte') ?>" class="hover:text-white transition-colors">Suporte</a></li>
-                        <?php if (!empty($menuPages)): ?>
-                            <?php foreach (array_slice($menuPages, 0, 4) as $mp): ?>
+                        <?php if (!empty($footerPages)): ?>
+                            <?php foreach ($footerPages as $mp): ?>
                                 <li><a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="hover:text-white transition-colors"><?= e($mp['title']) ?></a></li>
                             <?php endforeach; ?>
                         <?php endif; ?>

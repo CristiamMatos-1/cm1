@@ -8,10 +8,21 @@ use Throwable;
 
 class Page extends Model
 {
+    public const PLACE_HEADER = 'header';
+    public const PLACE_FOOTER = 'footer';
+    public const PLACE_NEWS = 'news';
+
+    /** @var array<string, string> */
+    private const PLACE_COLUMNS = [
+        self::PLACE_HEADER => 'show_in_header',
+        self::PLACE_FOOTER => 'show_in_footer',
+        self::PLACE_NEWS => 'show_in_news',
+    ];
+
     public function getAll(): array
     {
         try {
-            $stmt = $this->db->query('SELECT * FROM pages ORDER BY created_at DESC');
+            $stmt = $this->db->query('SELECT * FROM pages ORDER BY menu_order ASC, title ASC');
             return $stmt ? $stmt->fetchAll() : [];
         } catch (Throwable $e) {
             return [];
@@ -21,11 +32,41 @@ class Page extends Model
     public function getPublished(): array
     {
         try {
-            $stmt = $this->db->query('SELECT * FROM pages WHERE is_published = 1 ORDER BY title ASC');
+            $stmt = $this->db->query('SELECT * FROM pages WHERE is_published = 1 ORDER BY menu_order ASC, title ASC');
             return $stmt ? $stmt->fetchAll() : [];
         } catch (Throwable $e) {
             return [];
         }
+    }
+
+    /**
+     * Páginas publicadas para um local de menu (header, footer ou news).
+     */
+    public function getPublishedFor(string $placement): array
+    {
+        $column = self::PLACE_COLUMNS[$placement] ?? null;
+        if ($column === null) {
+            return [];
+        }
+
+        try {
+            $sql = "SELECT * FROM pages
+                    WHERE is_published = 1 AND {$column} = 1
+                    ORDER BY menu_order ASC, title ASC";
+            $stmt = $this->db->query($sql);
+            return $stmt ? $stmt->fetchAll() : [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    public static function placementLabels(): array
+    {
+        return [
+            self::PLACE_HEADER => 'Menu Principal',
+            self::PLACE_FOOTER => 'Rodapé',
+            self::PLACE_NEWS => 'Últimas Novidades',
+        ];
     }
 
     public function findById(int $id): ?array
@@ -49,8 +90,13 @@ class Page extends Model
     public function create(array $data): int
     {
         $stmt = $this->db->prepare('
-            INSERT INTO pages (title, slug, content, is_published)
-            VALUES (:title, :slug, :content, :is_published)
+            INSERT INTO pages (
+                title, slug, content, is_published,
+                show_in_header, show_in_footer, show_in_news, menu_order
+            ) VALUES (
+                :title, :slug, :content, :is_published,
+                :show_in_header, :show_in_footer, :show_in_news, :menu_order
+            )
         ');
 
         $stmt->execute([
@@ -58,6 +104,10 @@ class Page extends Model
             ':slug' => $this->uniqueSlug($data['title']),
             ':content' => $data['content'],
             ':is_published' => $data['is_published'] ?? 1,
+            ':show_in_header' => $data['show_in_header'] ?? 1,
+            ':show_in_footer' => $data['show_in_footer'] ?? 1,
+            ':show_in_news' => $data['show_in_news'] ?? 0,
+            ':menu_order' => $data['menu_order'] ?? 0,
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -73,7 +123,9 @@ class Page extends Model
 
         $stmt = $this->db->prepare('
             UPDATE pages
-            SET title = :title, slug = :slug, content = :content, is_published = :is_published
+            SET title = :title, slug = :slug, content = :content, is_published = :is_published,
+                show_in_header = :show_in_header, show_in_footer = :show_in_footer,
+                show_in_news = :show_in_news, menu_order = :menu_order
             WHERE id = :id
         ');
 
@@ -83,6 +135,10 @@ class Page extends Model
             ':slug' => $slug,
             ':content' => $data['content'],
             ':is_published' => $data['is_published'] ?? 1,
+            ':show_in_header' => $data['show_in_header'] ?? 1,
+            ':show_in_footer' => $data['show_in_footer'] ?? 1,
+            ':show_in_news' => $data['show_in_news'] ?? 0,
+            ':menu_order' => $data['menu_order'] ?? 0,
         ]);
     }
 

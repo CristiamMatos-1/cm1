@@ -70,11 +70,11 @@ class AdminPageController extends BaseAdminController
             $this->redirect('admin/pages/create');
         }
 
-        $this->pageModel->create([
+        $this->pageModel->create(array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ]);
+        ], $this->placementFromPost()));
 
         $_SESSION['page_msg'] = 'Página criada com sucesso!';
         $this->redirect('admin/pages');
@@ -93,11 +93,11 @@ class AdminPageController extends BaseAdminController
             $this->redirect('admin/pages/edit', ['id' => (string) $id]);
         }
 
-        $this->pageModel->update($id, [
+        $this->pageModel->update($id, array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ]);
+        ], $this->placementFromPost()));
 
         $_SESSION['page_msg'] = 'Página atualizada com sucesso!';
         $this->redirect('admin/pages');
@@ -113,5 +113,18 @@ class AdminPageController extends BaseAdminController
         }
 
         $this->redirect('admin/pages');
+    }
+
+    /**
+     * @return array{show_in_header: int, show_in_footer: int, show_in_news: int, menu_order: int}
+     */
+    private function placementFromPost(): array
+    {
+        return [
+            'show_in_header' => isset($_POST['show_in_header']) ? 1 : 0,
+            'show_in_footer' => isset($_POST['show_in_footer']) ? 1 : 0,
+            'show_in_news' => isset($_POST['show_in_news']) ? 1 : 0,
+            'menu_order' => max(0, Input::int($_POST['menu_order'] ?? 0) ?? 0),
+        ];
     }
 }

@@ -153,17 +153,36 @@ document.addEventListener('DOMContentLoaded', () => {
 <?php
 $homeVideo = $homeVideo ?? ['visible' => false, 'title' => '', 'subtitle' => '', 'player' => 'none', 'channelUrl' => ''];
 $newsSectionTitle = trim($newsSectionTitle ?? '');
-$showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '';
+$newsPages = $newsPages ?? [];
+$showNewsLinks = !empty($newsPages);
+$showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '' || $showNewsLinks;
+$newsHeading = $newsSectionTitle !== '' ? $newsSectionTitle : 'Últimas Novidades';
 ?>
 <?php if ($showVideoSection): ?>
-<section class="py-16 bg-white">
+<section class="py-16 bg-white" id="ultimas-novidades">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <?php if ($newsSectionTitle !== ''): ?>
+        <?php if ($newsSectionTitle !== '' || $showNewsLinks): ?>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900"><?= e($newsSectionTitle) ?></h2>
+                <h2 class="text-3xl font-bold text-gray-900"><?= e($newsHeading) ?></h2>
                 <div class="w-24 h-1 bg-brand-blue mx-auto mt-4"></div>
             </div>
         <?php endif; ?>
+
+        <?php if ($showNewsLinks): ?>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 <?= (!empty($homeVideo['visible'])) ? 'mb-12' : '' ?>">
+                <?php foreach ($newsPages as $np): ?>
+                    <a href="<?= url('pagina', ['slug' => $np['slug']]) ?>" class="group block border border-gray-100 bg-gray-50 hover:bg-white hover:border-brand-blue/30 transition-colors p-6">
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-brand-blue transition-colors"><?= e($np['title']) ?></h3>
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-3"><?= e(plain_excerpt($np['content'] ?? '', 140)) ?></p>
+                        <span class="inline-flex items-center gap-1 mt-4 text-sm font-semibold text-brand-blue">
+                            Saiba mais <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($homeVideo['visible']) || $homeVideo['title'] !== '' || $homeVideo['subtitle'] !== ''): ?>
         <div class="grid grid-cols-1 <?= ($homeVideo['player'] ?? 'none') !== 'none' ? 'md:grid-cols-2' : '' ?> gap-8 items-center">
             <?php if ($homeVideo['title'] !== '' || $homeVideo['subtitle'] !== '' || $homeVideo['channelUrl'] !== ''): ?>
             <div>
@@ -198,6 +217,7 @@ $showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '';
                 </div>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 <?php endif; ?>

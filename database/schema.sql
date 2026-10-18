@@ -30,10 +30,17 @@ CREATE TABLE IF NOT EXISTS `pages` (
     `slug` VARCHAR(255) NOT NULL UNIQUE,
     `content` MEDIUMTEXT NOT NULL,
     `is_published` TINYINT(1) NOT NULL DEFAULT 1,
+    `show_in_header` TINYINT(1) NOT NULL DEFAULT 1,
+    `show_in_footer` TINYINT(1) NOT NULL DEFAULT 1,
+    `show_in_news` TINYINT(1) NOT NULL DEFAULT 0,
+    `menu_order` INT NOT NULL DEFAULT 0,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX `idx_pages_slug` (`slug`),
-    INDEX `idx_pages_published` (`is_published`)
+    INDEX `idx_pages_published` (`is_published`),
+    INDEX `idx_pages_header` (`is_published`, `show_in_header`, `menu_order`),
+    INDEX `idx_pages_footer` (`is_published`, `show_in_footer`, `menu_order`),
+    INDEX `idx_pages_news` (`is_published`, `show_in_news`, `menu_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `settings` (
