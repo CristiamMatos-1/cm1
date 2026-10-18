@@ -60,6 +60,57 @@
     </a>
     <?php endif; ?>
 
+    <?php
+    $siteAnnouncement = null;
+    try {
+        $siteAnnouncement = (new \Models\Announcement())->getPublished();
+    } catch (Throwable $e) {
+        $siteAnnouncement = null;
+    }
+    ?>
+    <?php if (!empty($siteAnnouncement) && !empty($siteAnnouncement['body'])): ?>
+    <div id="site-announcement-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="announcement-title" data-announcement-id="<?= e((string) $siteAnnouncement['id']) ?>" data-announcement-updated="<?= e((string) ($siteAnnouncement['updated_at'] ?? '')) ?>">
+        <div class="absolute inset-0 bg-black/50" data-announcement-dismiss></div>
+        <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 md:p-8">
+            <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" data-announcement-dismiss aria-label="Fechar aviso">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <?php if (trim((string) ($siteAnnouncement['title'] ?? '')) !== ''): ?>
+                <h2 id="announcement-title" class="text-xl font-bold text-gray-900 mb-3 pr-8"><?= e($siteAnnouncement['title']) ?></h2>
+            <?php else: ?>
+                <h2 id="announcement-title" class="sr-only">Aviso importante</h2>
+            <?php endif; ?>
+            <div class="text-gray-700 leading-relaxed whitespace-pre-line"><?= e($siteAnnouncement['body']) ?></div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" class="bg-brand-blue text-white px-5 py-2.5 rounded-md font-medium hover:bg-blue-700" data-announcement-dismiss>Entendi</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('site-announcement-modal');
+        if (!modal) return;
+        const id = modal.getAttribute('data-announcement-id') || '';
+        const updated = modal.getAttribute('data-announcement-updated') || '';
+        const storageKey = 'cm1_announcement_dismissed_' + id + '_' + updated;
+        try {
+            if (sessionStorage.getItem(storageKey) === '1') return;
+        } catch (e) {}
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        const dismiss = () => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            try { sessionStorage.setItem(storageKey, '1'); } catch (e) {}
+        };
+        modal.querySelectorAll('[data-announcement-dismiss]').forEach((el) => el.addEventListener('click', dismiss));
+        document.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Escape' && !modal.classList.contains('hidden')) dismiss();
+        });
+    });
+    </script>
+    <?php endif; ?>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');

@@ -63,6 +63,9 @@ $navClass = static function (string $key, string $current): string {
             <a href="<?= url('admin/banners') ?>" class="<?= $navClass('banners', $currentNav) ?>">
                 <i class="fa-solid fa-images"></i> Banners
             </a>
+            <a href="<?= url('admin/announcements') ?>" class="<?= $navClass('announcements', $currentNav) ?>">
+                <i class="fa-solid fa-bullhorn"></i> Avisos
+            </a>
             <a href="<?= url('admin/users') ?>" class="<?= $navClass('users', $currentNav) ?>">
                 <i class="fa-solid fa-users"></i> Usuários
             </a>

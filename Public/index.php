@@ -88,6 +88,13 @@ $router->get('/admin/banners/edit', 'AdminBannerController@edit');
 $router->post('/admin/banners/update', 'AdminBannerController@update');
 $router->post('/admin/banners/delete', 'AdminBannerController@delete');
 
+$router->get('/admin/announcements', 'AdminAnnouncementController@index');
+$router->get('/admin/announcements/create', 'AdminAnnouncementController@create');
+$router->post('/admin/announcements/store', 'AdminAnnouncementController@store');
+$router->get('/admin/announcements/edit', 'AdminAnnouncementController@edit');
+$router->post('/admin/announcements/update', 'AdminAnnouncementController@update');
+$router->post('/admin/announcements/delete', 'AdminAnnouncementController@delete');
+
 $router->get('/admin/downloads', 'AdminDownloadController@index');
 $router->get('/admin/downloads/create', 'AdminDownloadController@create');
 $router->post('/admin/downloads/store', 'AdminDownloadController@store');

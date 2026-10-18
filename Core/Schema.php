@@ -29,6 +29,7 @@ class Schema
             }
             self::createDownloads($pdo, $db->isSqlite());
             self::createBanners($pdo, $db->isSqlite());
+            self::createAnnouncements($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
         } catch (Throwable $e) {
@@ -168,6 +169,40 @@ class Schema
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 INDEX `idx_banners_active_order` (`is_active`, `sort_order`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
+
+    /**
+     * Avisos em modal. Status: draft | published | hidden.
+     * No máximo um "publicado" deve ser exibido (o mais recente).
+     */
+    private static function createAnnouncements(PDO $pdo, bool $sqlite): void
+    {
+        if ($sqlite) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS announcements (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL DEFAULT '',
+                    body TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'draft',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_announcements_status_updated ON announcements (status, updated_at)");
+            return;
+        }
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `announcements` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `title` VARCHAR(255) NOT NULL DEFAULT '',
+                `body` TEXT NOT NULL,
+                `status` VARCHAR(20) NOT NULL DEFAULT 'draft',
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX `idx_announcements_status_updated` (`status`, `updated_at`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }
