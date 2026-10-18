@@ -98,6 +98,7 @@ $router->post('/admin/announcements/update', 'AdminAnnouncementController@update
 $router->post('/admin/announcements/delete', 'AdminAnnouncementController@delete');
 
 $router->get('/admin/downloads', 'AdminDownloadController@index');
+$router->post('/admin/downloads/page', 'AdminDownloadController@updatePage');
 $router->get('/admin/downloads/create', 'AdminDownloadController@create');
 $router->post('/admin/downloads/store', 'AdminDownloadController@store');
 $router->get('/admin/downloads/edit', 'AdminDownloadController@edit');

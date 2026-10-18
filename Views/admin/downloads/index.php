@@ -6,6 +6,41 @@ $pageHeading = 'Suporte e Downloads';
 require dirname(__DIR__) . '/partials/header.php';
 ?>
 
+<?php
+    $pageCopy = $pageCopy ?? [
+        'link' => 'Suporte',
+        'title' => 'Suporte Remoto',
+        'text' => '',
+    ];
+?>
+<form action="<?= url('admin/downloads/page') ?>" method="POST" class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 mb-6 space-y-4">
+    <?= csrf_field() ?>
+    <div>
+        <h3 class="text-lg font-medium text-gray-800">Textos da página</h3>
+        <p class="text-sm text-gray-500 mt-1">O nome do link aparece no menu e no rodapé. O título e o texto aparecem no topo da página pública de downloads.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label for="support_link_label" class="block text-sm font-medium text-gray-700 mb-2">Nome do link</label>
+            <input type="text" name="support_link_label" id="support_link_label" maxlength="80" required value="<?= e($pageCopy['link']) ?>" class="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
+        </div>
+        <div>
+            <label for="support_page_title" class="block text-sm font-medium text-gray-700 mb-2">Título da página</label>
+            <input type="text" name="support_page_title" id="support_page_title" maxlength="160" required value="<?= e($pageCopy['title']) ?>" class="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md border p-2.5">
+        </div>
+    </div>
+    <div>
+        <label for="support_page_text" class="block text-sm font-medium text-gray-700 mb-2">Texto da página</label>
+        <textarea name="support_page_text" id="support_page_text" rows="3" maxlength="2000" class="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md border p-2.5"><?= e($pageCopy['text']) ?></textarea>
+        <p class="text-xs text-gray-500 mt-1">Deixe em branco para ocultar o parágrafo.</p>
+    </div>
+    <div class="flex justify-end">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium">
+            <i class="fa-solid fa-save mr-1"></i> Salvar textos
+        </button>
+    </div>
+</form>
+
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
     <p class="text-sm text-gray-600">Arquivos publicados aparecem em <a href="<?= url('suporte') ?>" target="_blank" class="text-blue-600 hover:underline">/suporte</a>.</p>
     <a href="<?= url('admin/downloads/create') ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow text-sm font-medium transition text-center">

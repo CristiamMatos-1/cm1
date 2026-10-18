@@ -2,10 +2,12 @@
 
 <section class="bg-brand-blue text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Suporte Remoto</h1>
-        <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto">
-            Baixe as ferramentas de acesso remoto e os arquivos de suporte disponibilizados pela CONINFOMS.
-        </p>
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4"><?= e($supportPageTitle ?? 'Suporte Remoto') ?></h1>
+        <?php if (trim((string) ($supportPageText ?? '')) !== ''): ?>
+            <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto">
+                <?= nl2br(e($supportPageText)) ?>
+            </p>
+        <?php endif; ?>
     </div>
 </section>
 
