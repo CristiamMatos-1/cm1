@@ -43,3 +43,20 @@ CREATE TABLE IF NOT EXISTS `settings` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX `idx_settings_key` (`key_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Arquivos de suporte remoto (status: published | hidden | removed)
+CREATE TABLE IF NOT EXISTS `downloads` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `display_name` VARCHAR(255) NOT NULL,
+    `stored_name` VARCHAR(255) NOT NULL UNIQUE,
+    `original_name` VARCHAR(255) NOT NULL,
+    `mime_type` VARCHAR(127) NOT NULL,
+    `file_size` INT UNSIGNED NOT NULL DEFAULT 0,
+    `status` VARCHAR(20) NOT NULL DEFAULT 'published',
+    `sort_order` INT NOT NULL DEFAULT 0,
+    `created_by` INT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_downloads_status_order` (`status`, `sort_order`),
+    CONSTRAINT `fk_downloads_user` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

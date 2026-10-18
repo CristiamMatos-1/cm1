@@ -61,6 +61,8 @@ $router->get('/', 'HomeController@index');
 $router->get('/materias', 'HomeController@materias');
 $router->get('/artigo', 'HomeController@artigo');
 $router->get('/pagina', 'HomeController@page');
+$router->get('/suporte', 'SupportController@index');
+$router->get('/download', 'SupportController@download');
 
 $router->get('/login', 'AuthController@login');
 $router->post('/login/authenticate', 'AuthController@authenticate');
@@ -78,6 +80,13 @@ $router->post('/admin/articles/generate-ai', 'ArticleController@generateAiConten
 
 $router->get('/admin/settings', 'SettingsController@index');
 $router->post('/admin/settings/store', 'SettingsController@store');
+
+$router->get('/admin/downloads', 'AdminDownloadController@index');
+$router->get('/admin/downloads/create', 'AdminDownloadController@create');
+$router->post('/admin/downloads/store', 'AdminDownloadController@store');
+$router->get('/admin/downloads/edit', 'AdminDownloadController@edit');
+$router->post('/admin/downloads/update', 'AdminDownloadController@update');
+$router->post('/admin/downloads/status', 'AdminDownloadController@setStatus');
 
 $router->get('/admin/users', 'AdminUserController@index');
 $router->get('/admin/users/create', 'AdminUserController@create');

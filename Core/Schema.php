@@ -27,6 +27,7 @@ class Schema
             } else {
                 self::createMysql($pdo);
             }
+            self::createDownloads($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
         } catch (Throwable $e) {
@@ -84,6 +85,51 @@ class Schema
                 `key_value` TEXT NULL,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 INDEX `idx_settings_key` (`key_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
+
+    /**
+     * Arquivos de suporte remoto. Status: published | hidden | removed.
+     */
+    private static function createDownloads(PDO $pdo, bool $sqlite): void
+    {
+        if ($sqlite) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS downloads (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    display_name TEXT NOT NULL,
+                    stored_name TEXT NOT NULL UNIQUE,
+                    original_name TEXT NOT NULL,
+                    mime_type TEXT NOT NULL,
+                    file_size INTEGER NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'published',
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    created_by INTEGER NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+                )
+            ");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_downloads_status_order ON downloads (status, sort_order)");
+            return;
+        }
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `downloads` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `display_name` VARCHAR(255) NOT NULL,
+                `stored_name` VARCHAR(255) NOT NULL UNIQUE,
+                `original_name` VARCHAR(255) NOT NULL,
+                `mime_type` VARCHAR(127) NOT NULL,
+                `file_size` INT UNSIGNED NOT NULL DEFAULT 0,
+                `status` VARCHAR(20) NOT NULL DEFAULT 'published',
+                `sort_order` INT NOT NULL DEFAULT 0,
+                `created_by` INT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX `idx_downloads_status_order` (`status`, `sort_order`),
+                CONSTRAINT `fk_downloads_user` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }

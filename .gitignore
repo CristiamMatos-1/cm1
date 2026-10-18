@@ -5,6 +5,8 @@ storage/*.sqlite
 storage/*.sqlite-journal
 storage/logs/*
 !storage/logs/.gitkeep
+storage/downloads/*
+!storage/downloads/.gitkeep
 sessions/sess_*
 Public/uploads/videos/*
 !Public/uploads/videos/.gitkeep

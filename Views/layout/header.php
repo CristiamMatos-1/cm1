@@ -64,6 +64,7 @@ try {
                 <nav class="hidden md:flex space-x-8 items-center">
                     <a href="<?= url() ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Início</a>
                     <a href="<?= url('materias') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Matérias</a>
+                    <a href="<?= url('suporte') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Suporte</a>
                     <?php foreach ($menuPages as $mp): ?>
                         <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors"><?= e($mp['title']) ?></a>
                     <?php endforeach; ?>
@@ -86,6 +87,7 @@ try {
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-inner">
                 <a href="<?= url() ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Início</a>
                 <a href="<?= url('materias') ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Matérias</a>
+                <a href="<?= url('suporte') ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Suporte</a>
                 <?php foreach ($menuPages as $mp): ?>
                     <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50"><?= e($mp['title']) ?></a>
                 <?php endforeach; ?>
