@@ -9,7 +9,7 @@
             <div class="w-24 h-1 bg-brand-blue mx-auto mt-4 rounded"></div>
         </div>
         <div class="bg-white shadow rounded-lg p-8 prose prose-blue max-w-none">
-            <?= $content ?>
+            <?= \Core\HtmlContent::normalize((string) $content) ?>
         </div>
     </div>
 </div>

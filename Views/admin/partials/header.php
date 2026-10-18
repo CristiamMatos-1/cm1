@@ -46,8 +46,17 @@ $navClass = static function (string $key, string $current): string {
       tinymce.init({
         selector: '#content-editor',
         plugins: 'advlist autolink lists link image charmap preview anchor pagebreak',
+        toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | removeformat',
         toolbar_mode: 'floating',
-        height: 500
+        height: 500,
+        menubar: false,
+        branding: false,
+        // UTF-8 nativo: evita &ccedil; / &atilde; no HTML salvo
+        entity_encoding: 'raw',
+        encoding: 'html',
+        convert_urls: false,
+        verify_html: true,
+        content_style: 'body { font-family: system-ui, sans-serif; font-size: 16px; }'
       });
     </script>
     <?php endif; ?>

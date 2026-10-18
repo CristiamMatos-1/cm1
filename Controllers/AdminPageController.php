@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Core\HtmlContent;
 use Core\Input;
 use Models\Page;
 
@@ -61,7 +62,7 @@ class AdminPageController extends BaseAdminController
         $this->assertCsrf();
 
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if ($title === '' || $content === '') {
@@ -85,7 +86,7 @@ class AdminPageController extends BaseAdminController
 
         $id = Input::int($_POST['id'] ?? null);
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if (!$id || $title === '' || $content === '') {

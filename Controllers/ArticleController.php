@@ -4,6 +4,7 @@ namespace Controllers;
 
 use Config\App;
 use Core\Auth;
+use Core\HtmlContent;
 use Core\Input;
 use Core\Services\GeminiAIService;
 use Core\Services\ImageUploadService;
@@ -48,7 +49,7 @@ class ArticleController extends BaseAdminController
         $this->assertCsrf();
 
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if ($title === '' || $content === '') {
@@ -114,7 +115,7 @@ class ArticleController extends BaseAdminController
 
         $id = Input::int($_POST['id'] ?? null);
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if (!$id || $title === '' || $content === '') {

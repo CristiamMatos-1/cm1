@@ -114,9 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <?php if (!empty($articles)): ?>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <?php foreach ($articles as $article): ?>
+                    <?php
+                    $cover = article_cover($article, $globalCompanyLogo ?? '');
+                    $coverClass = !empty($article['featured_image'])
+                        ? 'w-full h-48 object-cover'
+                        : 'w-full h-48 object-contain bg-gray-50 p-6';
+                    ?>
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <?php if (!empty($article['featured_image'])): ?>
-                            <img src="<?= asset($article['featured_image']) ?>" alt="<?= e($article['title']) ?>" class="w-full h-48 object-cover">
+                        <?php if ($cover !== ''): ?>
+                            <img src="<?= asset($cover) ?>" alt="<?= e($article['title']) ?>" class="<?= e($coverClass) ?>">
                         <?php else: ?>
                             <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-image text-4xl"></i>
@@ -127,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <?= date('d M, Y', strtotime($article['created_at'])) ?>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2"><?= e($article['title']) ?></h3>
-                            <p class="text-gray-600 mb-4 line-clamp-3"><?= e(mb_substr(strip_tags($article['content']), 0, 180)) ?></p>
+                            <p class="text-gray-600 mb-4 line-clamp-3"><?= e(plain_excerpt($article['content'])) ?></p>
                             <a href="<?= url('artigo', ['slug' => $article['slug']]) ?>" class="text-brand-blue font-semibold hover:underline flex items-center gap-1">
                                 Ler mais <i class="fa-solid fa-arrow-right text-sm"></i>
                             </a>
