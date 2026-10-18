@@ -10,4 +10,6 @@ storage/downloads/*
 sessions/sess_*
 Public/uploads/videos/*
 !Public/uploads/videos/.gitkeep
+Public/uploads/banners/*
+!Public/uploads/banners/.gitkeep
 .DS_Store

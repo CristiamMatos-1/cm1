@@ -28,6 +28,7 @@ class Schema
                 self::createMysql($pdo);
             }
             self::createDownloads($pdo, $db->isSqlite());
+            self::createBanners($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
         } catch (Throwable $e) {
@@ -130,6 +131,43 @@ class Schema
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 INDEX `idx_downloads_status_order` (`status`, `sort_order`),
                 CONSTRAINT `fk_downloads_user` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
+
+    /**
+     * Banners do carrossel da home. is_active=1 entra no site.
+     */
+    private static function createBanners(PDO $pdo, bool $sqlite): void
+    {
+        if ($sqlite) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS banners (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL DEFAULT '',
+                    image_path TEXT NOT NULL,
+                    link_url TEXT NOT NULL DEFAULT '',
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_banners_active_order ON banners (is_active, sort_order)");
+            return;
+        }
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `banners` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `title` VARCHAR(255) NOT NULL DEFAULT '',
+                `image_path` VARCHAR(255) NOT NULL,
+                `link_url` VARCHAR(500) NOT NULL DEFAULT '',
+                `sort_order` INT NOT NULL DEFAULT 0,
+                `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX `idx_banners_active_order` (`is_active`, `sort_order`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }

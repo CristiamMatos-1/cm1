@@ -66,6 +66,11 @@ require __DIR__ . '/partials/header.php';
                     <i class="fa-solid fa-headset w-6 text-gray-400"></i> Arquivos de suporte
                 </a>
             </li>
+            <li>
+                <a href="<?= url('admin/banners') ?>" class="flex items-center text-blue-700 hover:text-blue-900 transition">
+                    <i class="fa-solid fa-images w-6 text-gray-400"></i> Banners da home
+                </a>
+            </li>
         </ul>
     </div>
     <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">

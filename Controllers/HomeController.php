@@ -6,6 +6,7 @@ use Core\Controller;
 use Core\Services\HomeVideoService;
 use Core\Services\SiteContextService;
 use Models\Article;
+use Models\Banner;
 use Models\Page;
 use Models\Setting;
 use Throwable;
@@ -30,9 +31,16 @@ class HomeController extends Controller
         }
 
         $homeVideo = (new HomeVideoService($settings))->forHomepage();
+        $banners = [];
+        try {
+            $banners = (new Banner())->getActive();
+        } catch (Throwable $e) {
+            $banners = [];
+        }
 
         $this->render('home/index', array_merge($this->siteContext->layoutData(), [
             'title' => $settings->get('company_name', 'CONINFOMS') . ' - Soluções em Tecnologia',
+            'banners' => $banners,
             'articles' => $articles,
             'heroTitle' => $settings->get('hero_title', 'Inovação e Tecnologia para o seu Negócio'),
             'heroSubtitle' => $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.'),

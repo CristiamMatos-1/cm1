@@ -81,6 +81,13 @@ $router->post('/admin/articles/generate-ai', 'ArticleController@generateAiConten
 $router->get('/admin/settings', 'SettingsController@index');
 $router->post('/admin/settings/store', 'SettingsController@store');
 
+$router->get('/admin/banners', 'AdminBannerController@index');
+$router->get('/admin/banners/create', 'AdminBannerController@create');
+$router->post('/admin/banners/store', 'AdminBannerController@store');
+$router->get('/admin/banners/edit', 'AdminBannerController@edit');
+$router->post('/admin/banners/update', 'AdminBannerController@update');
+$router->post('/admin/banners/delete', 'AdminBannerController@delete');
+
 $router->get('/admin/downloads', 'AdminDownloadController@index');
 $router->get('/admin/downloads/create', 'AdminDownloadController@create');
 $router->post('/admin/downloads/store', 'AdminDownloadController@store');

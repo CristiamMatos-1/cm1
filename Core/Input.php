@@ -23,4 +23,20 @@ class Input
         $filtered = filter_var($value, FILTER_VALIDATE_INT);
         return $filtered === false ? null : $filtered;
     }
+
+    /**
+     * URL absoluta ou caminho interno. Bloqueia javascript: e data:.
+     */
+    public static function href(mixed $value): string
+    {
+        $url = trim(strip_tags((string) ($value ?? '')));
+        if ($url === '') {
+            return '';
+        }
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        if (in_array($scheme, ['javascript', 'data', 'vbscript'], true)) {
+            return '';
+        }
+        return mb_substr($url, 0, 500);
+    }
 }

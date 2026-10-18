@@ -111,6 +111,86 @@ class ImageUploadService
     }
 
     /**
+     * Banner da home (recorte largo). Caminho relativo em /uploads/banners/.
+     */
+    public function uploadBanner(array $file): string|false
+    {
+        $previousDir = $this->uploadDir;
+        $previousWidth = $this->targetWidth;
+        $previousHeight = $this->targetHeight;
+
+        $this->uploadDir = dirname(dirname(__DIR__)) . '/Public/uploads/banners/';
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0755, true);
+        }
+        $this->targetWidth = 1600;
+        $this->targetHeight = 560;
+
+        $path = $this->storeValidatedImage($file, 'banner_', '/uploads/banners/');
+
+        $this->uploadDir = $previousDir;
+        $this->targetWidth = $previousWidth;
+        $this->targetHeight = $previousHeight;
+
+        return $path;
+    }
+
+    public function deleteBanner(?string $relativePath): void
+    {
+        if ($relativePath === null || $relativePath === '') {
+            return;
+        }
+        $relativePath = '/' . ltrim(str_replace('\\', '/', $relativePath), '/');
+        if (!str_starts_with($relativePath, '/uploads/banners/') || str_contains($relativePath, '..')) {
+            return;
+        }
+        $full = dirname(dirname(__DIR__)) . '/Public' . $relativePath;
+        if (is_file($full)) {
+            @unlink($full);
+        }
+    }
+
+    private function storeValidatedImage(array $file, string $prefix, string $publicDir): string|false
+    {
+        if (!isset($file['error']) || is_array($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+            if (($file['error'] ?? null) === UPLOAD_ERR_INI_SIZE || ($file['error'] ?? null) === UPLOAD_ERR_FORM_SIZE) {
+                $_SESSION['error_msg'] = 'A imagem excede o limite de upload do servidor.';
+            }
+            return false;
+        }
+
+        if ($file['size'] > $this->maxFileSize) {
+            $_SESSION['error_msg'] = 'O arquivo excede o limite de 10MB.';
+            return false;
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mime, $this->allowedMimeTypes, true)) {
+            $_SESSION['error_msg'] = 'Formato de imagem inválido. Apenas JPG, PNG e WEBP são permitidos.';
+            return false;
+        }
+
+        $ext = match ($mime) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
+        };
+
+        $safeName = sprintf('%s%s_%s.%s', $prefix, date('YmdHis'), bin2hex(random_bytes(6)), $ext);
+        $destination = $this->uploadDir . $safeName;
+
+        if ($this->resizeAndCropImage($file['tmp_name'], $destination, $mime)) {
+            return rtrim($publicDir, '/') . '/' . $safeName;
+        }
+
+        $_SESSION['error_msg'] = 'Falha ao processar a imagem. Verifique se a extensão GD do PHP está ativa no cPanel.';
+        return false;
+    }
+
+    /**
      * Redimensiona e corta a imagem para manter o tamanho padrão (crop center)
      */
     private function resizeAndCropImage(string $sourcePath, string $destinationPath, string $mime): bool

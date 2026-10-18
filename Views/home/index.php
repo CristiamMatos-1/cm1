@@ -1,5 +1,84 @@
 <?php require dirname(__DIR__) . '/layout/header.php'; ?>
 
+<?php
+$banners = $banners ?? [];
+$bannerCount = count($banners);
+?>
+<?php if ($bannerCount > 0): ?>
+<section id="home-banners" class="relative bg-gray-900 overflow-hidden" aria-roledescription="carrossel" aria-label="Banners em destaque">
+    <div class="relative aspect-[16/7] md:aspect-[21/7] max-h-[520px] w-full">
+        <?php foreach ($banners as $index => $banner): ?>
+            <?php
+                $title = trim((string) ($banner['title'] ?? ''));
+                $link = trim((string) ($banner['link_url'] ?? ''));
+                $isExternal = preg_match('~^https?://~i', $link) === 1;
+            ?>
+            <div class="banner-slide absolute inset-0 <?= $index === 0 ? '' : 'hidden' ?>" data-slide="<?= (int) $index ?>">
+                <?php if ($link !== ''): ?>
+                    <a href="<?= e($link) ?>" class="block h-full w-full" <?= $isExternal ? 'target="_blank" rel="noopener"' : '' ?>>
+                <?php endif; ?>
+                    <img src="<?= asset($banner['image_path']) ?>" alt="<?= e($title !== '' ? $title : 'Banner') ?>" class="h-full w-full object-cover">
+                    <?php if ($title !== ''): ?>
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-6 md:p-10">
+                            <p class="text-white text-xl md:text-3xl font-bold max-w-3xl"><?= e($title) ?></p>
+                        </div>
+                    <?php endif; ?>
+                <?php if ($link !== ''): ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php if ($bannerCount > 1): ?>
+        <button type="button" data-prev class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full" aria-label="Banner anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button type="button" data-next class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full" aria-label="Próximo banner">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+            <?php for ($i = 0; $i < $bannerCount; $i++): ?>
+                <button type="button" data-dot="<?= $i ?>" class="w-2.5 h-2.5 rounded-full <?= $i === 0 ? 'bg-white' : 'bg-white/40' ?>" aria-label="Ir para o banner <?= $i + 1 ?>"></button>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
+</section>
+<?php if ($bannerCount > 1): ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const root = document.getElementById('home-banners');
+    if (!root) return;
+    const slides = Array.from(root.querySelectorAll('[data-slide]'));
+    if (slides.length < 2) return;
+    let current = 0;
+    let timer = null;
+    const show = (n) => {
+        current = (n + slides.length) % slides.length;
+        slides.forEach((el, idx) => el.classList.toggle('hidden', idx !== current));
+        root.querySelectorAll('[data-dot]').forEach((dot, idx) => {
+            dot.classList.toggle('bg-white', idx === current);
+            dot.classList.toggle('bg-white/40', idx !== current);
+        });
+    };
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const start = () => {
+        stop();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        timer = setInterval(() => show(current + 1), 5000);
+    };
+    root.querySelector('[data-prev]')?.addEventListener('click', () => { show(current - 1); start(); });
+    root.querySelector('[data-next]')?.addEventListener('click', () => { show(current + 1); start(); });
+    root.querySelectorAll('[data-dot]').forEach((dot) => {
+        dot.addEventListener('click', () => { show(Number(dot.getAttribute('data-dot'))); start(); });
+    });
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    start();
+});
+</script>
+<?php endif; ?>
+<?php endif; ?>
+
 <section class="bg-brand-blue text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center md:text-left md:w-2/3">
