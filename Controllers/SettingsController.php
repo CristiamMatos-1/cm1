@@ -2,7 +2,9 @@
 
 namespace Controllers;
 
+use Core\Input;
 use Core\Services\ImageUploadService;
+use Core\Services\SocialLinksService;
 use Core\Services\VideoUploadService;
 use Core\Services\YouTubeService;
 use Models\Setting;
@@ -35,7 +37,9 @@ class SettingsController extends BaseAdminController
     {
         $this->assertCsrf();
 
-        $allowedKeys = [
+        $socialKeys = array_merge(SocialLinksService::settingKeys(), ['social_whatsapp_url']);
+
+        $allowedKeys = array_merge([
             'company_name', 'whatsapp_number', 'whatsapp_message',
             'youtube_api_key', 'youtube_channel_id', 'youtube_channel_url',
             'youtube_video_url', 'home_video_mode', 'meta_access_token',
@@ -46,12 +50,23 @@ class SettingsController extends BaseAdminController
             'youtube_section_subtitle', 'footer_about_text', 'facebook_page_id',
             'facebook_access_token', 'instagram_account_id', 'instagram_access_token',
             'gemini_api_key',
-        ];
+        ], $socialKeys);
 
         foreach ($allowedKeys as $key) {
-            if (array_key_exists($key, $_POST)) {
-                $this->settingModel->set($key, trim((string) $_POST[$key]));
+            if (!array_key_exists($key, $_POST)) {
+                continue;
             }
+            $value = trim((string) $_POST[$key]);
+            if (in_array($key, $socialKeys, true)) {
+                $value = Input::href($value);
+            }
+            if ($key === 'company_name') {
+                $value = Input::string($value);
+                if ($value === '') {
+                    $value = 'CONINFOMS';
+                }
+            }
+            $this->settingModel->set($key, $value);
         }
 
         if (isset($_FILES['company_logo']) && $_FILES['company_logo']['error'] === UPLOAD_ERR_OK) {
@@ -99,6 +114,7 @@ class SettingsController extends BaseAdminController
         }
 
         if (empty($_SESSION['settings_error'])) {
+            $this->audit('update', 'settings', null, 'Configurações globais');
             $_SESSION['settings_msg'] = 'Configurações atualizadas com sucesso!';
         }
         $this->redirect('admin/settings');

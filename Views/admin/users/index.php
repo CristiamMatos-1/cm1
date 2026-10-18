@@ -36,8 +36,21 @@ require dirname(__DIR__) . '/partials/header.php';
                     <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= e($user['name']) ?></td>
                     <td class="px-6 py-4 text-sm text-gray-500"><?= e($user['email']) ?></td>
                     <td class="px-6 py-4 text-sm text-gray-500"><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
-                    <td class="px-6 py-4 text-right text-sm font-medium">
-                        <a href="<?= url('admin/users/edit', ['id' => $user['id']]) ?>" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                    <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                        <a href="<?= url('admin/users/edit', ['id' => $user['id']]) ?>" class="text-blue-600 hover:text-blue-900">Editar</a>
+                        <?php
+                        $email = (string) ($user['email'] ?? '');
+                        $isAnon = str_starts_with($email, 'anonimizado-') && str_ends_with($email, '@invalid.local');
+                        ?>
+                        <?php if (!$isAnon): ?>
+                        <form action="<?= url('admin/users/anonymize') ?>" method="POST" class="inline" onsubmit="return confirm('Anonimizar dados deste usuário (LGPD)? Nome e e-mail serão removidos.');">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="id" value="<?= e((string) $user['id']) ?>">
+                            <button type="submit" class="text-amber-600 hover:text-amber-800">Anonimizar</button>
+                        </form>
+                        <?php else: ?>
+                            <span class="text-xs text-gray-400">Anonimizado</span>
+                        <?php endif; ?>
                         <form action="<?= url('admin/users/delete') ?>" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="id" value="<?= e((string) $user['id']) ?>">
@@ -61,8 +74,19 @@ require dirname(__DIR__) . '/partials/header.php';
                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">#<?= e((string) $user['id']) ?></span>
             </div>
             <p class="text-sm text-gray-600 mb-1"><?= e($user['email']) ?></p>
-            <div class="flex gap-2 border-t pt-3">
+            <div class="flex flex-wrap gap-2 border-t pt-3">
                 <a href="<?= url('admin/users/edit', ['id' => $user['id']]) ?>" class="flex-1 bg-blue-50 text-blue-600 text-center py-2 rounded-md">Editar</a>
+                <?php
+                $email = (string) ($user['email'] ?? '');
+                $isAnon = str_starts_with($email, 'anonimizado-') && str_ends_with($email, '@invalid.local');
+                ?>
+                <?php if (!$isAnon): ?>
+                <form action="<?= url('admin/users/anonymize') ?>" method="POST" class="flex-1" onsubmit="return confirm('Anonimizar dados deste usuário (LGPD)?');">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= e((string) $user['id']) ?>">
+                    <button type="submit" class="w-full bg-amber-50 text-amber-700 py-2 rounded-md">Anonimizar</button>
+                </form>
+                <?php endif; ?>
                 <form action="<?= url('admin/users/delete') ?>" method="POST" class="flex-1" onsubmit="return confirm('Tem certeza que deseja excluir?');">
                     <?= csrf_field() ?>
                     <input type="hidden" name="id" value="<?= e((string) $user['id']) ?>">

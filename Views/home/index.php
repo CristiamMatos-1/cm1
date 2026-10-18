@@ -1,5 +1,84 @@
 <?php require dirname(__DIR__) . '/layout/header.php'; ?>
 
+<?php
+$banners = $banners ?? [];
+$bannerCount = count($banners);
+?>
+<?php if ($bannerCount > 0): ?>
+<section id="home-banners" class="relative bg-gray-900 overflow-hidden" aria-roledescription="carrossel" aria-label="Banners em destaque">
+    <div class="relative aspect-[16/7] md:aspect-[21/7] max-h-[520px] w-full">
+        <?php foreach ($banners as $index => $banner): ?>
+            <?php
+                $title = trim((string) ($banner['title'] ?? ''));
+                $link = trim((string) ($banner['link_url'] ?? ''));
+                $isExternal = preg_match('~^https?://~i', $link) === 1;
+            ?>
+            <div class="banner-slide absolute inset-0 <?= $index === 0 ? '' : 'hidden' ?>" data-slide="<?= (int) $index ?>">
+                <?php if ($link !== ''): ?>
+                    <a href="<?= e($link) ?>" class="block h-full w-full" <?= $isExternal ? 'target="_blank" rel="noopener"' : '' ?>>
+                <?php endif; ?>
+                    <img src="<?= asset($banner['image_path']) ?>" alt="<?= e($title !== '' ? $title : 'Banner') ?>" class="h-full w-full object-cover">
+                    <?php if ($title !== ''): ?>
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-6 md:p-10">
+                            <p class="text-white text-xl md:text-3xl font-bold max-w-3xl"><?= e($title) ?></p>
+                        </div>
+                    <?php endif; ?>
+                <?php if ($link !== ''): ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php if ($bannerCount > 1): ?>
+        <button type="button" data-prev class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full" aria-label="Banner anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button type="button" data-next class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 rounded-full" aria-label="Próximo banner">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+            <?php for ($i = 0; $i < $bannerCount; $i++): ?>
+                <button type="button" data-dot="<?= $i ?>" class="w-2.5 h-2.5 rounded-full <?= $i === 0 ? 'bg-white' : 'bg-white/40' ?>" aria-label="Ir para o banner <?= $i + 1 ?>"></button>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
+</section>
+<?php if ($bannerCount > 1): ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const root = document.getElementById('home-banners');
+    if (!root) return;
+    const slides = Array.from(root.querySelectorAll('[data-slide]'));
+    if (slides.length < 2) return;
+    let current = 0;
+    let timer = null;
+    const show = (n) => {
+        current = (n + slides.length) % slides.length;
+        slides.forEach((el, idx) => el.classList.toggle('hidden', idx !== current));
+        root.querySelectorAll('[data-dot]').forEach((dot, idx) => {
+            dot.classList.toggle('bg-white', idx === current);
+            dot.classList.toggle('bg-white/40', idx !== current);
+        });
+    };
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const start = () => {
+        stop();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        timer = setInterval(() => show(current + 1), 5000);
+    };
+    root.querySelector('[data-prev]')?.addEventListener('click', () => { show(current - 1); start(); });
+    root.querySelector('[data-next]')?.addEventListener('click', () => { show(current + 1); start(); });
+    root.querySelectorAll('[data-dot]').forEach((dot) => {
+        dot.addEventListener('click', () => { show(Number(dot.getAttribute('data-dot'))); start(); });
+    });
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    start();
+});
+</script>
+<?php endif; ?>
+<?php endif; ?>
+
 <section class="bg-brand-blue text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center md:text-left md:w-2/3">
@@ -35,9 +114,15 @@
         <?php if (!empty($articles)): ?>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <?php foreach ($articles as $article): ?>
+                    <?php
+                    $cover = article_cover($article, $globalCompanyLogo ?? '');
+                    $coverClass = !empty($article['featured_image'])
+                        ? 'w-full h-48 object-cover'
+                        : 'w-full h-48 object-contain bg-gray-50 p-6';
+                    ?>
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <?php if (!empty($article['featured_image'])): ?>
-                            <img src="<?= asset($article['featured_image']) ?>" alt="<?= e($article['title']) ?>" class="w-full h-48 object-cover">
+                        <?php if ($cover !== ''): ?>
+                            <img src="<?= asset($cover) ?>" alt="<?= e($article['title']) ?>" class="<?= e($coverClass) ?>">
                         <?php else: ?>
                             <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
                                 <i class="fa-solid fa-image text-4xl"></i>
@@ -48,7 +133,7 @@
                                 <?= date('d M, Y', strtotime($article['created_at'])) ?>
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2"><?= e($article['title']) ?></h3>
-                            <p class="text-gray-600 mb-4 line-clamp-3"><?= e(mb_substr(strip_tags($article['content']), 0, 180)) ?></p>
+                            <p class="text-gray-600 mb-4 line-clamp-3"><?= e(plain_excerpt($article['content'])) ?></p>
                             <a href="<?= url('artigo', ['slug' => $article['slug']]) ?>" class="text-brand-blue font-semibold hover:underline flex items-center gap-1">
                                 Ler mais <i class="fa-solid fa-arrow-right text-sm"></i>
                             </a>
@@ -68,17 +153,36 @@
 <?php
 $homeVideo = $homeVideo ?? ['visible' => false, 'title' => '', 'subtitle' => '', 'player' => 'none', 'channelUrl' => ''];
 $newsSectionTitle = trim($newsSectionTitle ?? '');
-$showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '';
+$newsPages = $newsPages ?? [];
+$showNewsLinks = !empty($newsPages);
+$showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '' || $showNewsLinks;
+$newsHeading = $newsSectionTitle !== '' ? $newsSectionTitle : 'Últimas Novidades';
 ?>
 <?php if ($showVideoSection): ?>
-<section class="py-16 bg-white">
+<section class="py-16 bg-white" id="ultimas-novidades">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <?php if ($newsSectionTitle !== ''): ?>
+        <?php if ($newsSectionTitle !== '' || $showNewsLinks): ?>
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900"><?= e($newsSectionTitle) ?></h2>
+                <h2 class="text-3xl font-bold text-gray-900"><?= e($newsHeading) ?></h2>
                 <div class="w-24 h-1 bg-brand-blue mx-auto mt-4"></div>
             </div>
         <?php endif; ?>
+
+        <?php if ($showNewsLinks): ?>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 <?= (!empty($homeVideo['visible'])) ? 'mb-12' : '' ?>">
+                <?php foreach ($newsPages as $np): ?>
+                    <a href="<?= url('pagina', ['slug' => $np['slug']]) ?>" class="group block border border-gray-100 bg-gray-50 hover:bg-white hover:border-brand-blue/30 transition-colors p-6">
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-brand-blue transition-colors"><?= e($np['title']) ?></h3>
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-3"><?= e(plain_excerpt($np['content'] ?? '', 140)) ?></p>
+                        <span class="inline-flex items-center gap-1 mt-4 text-sm font-semibold text-brand-blue">
+                            Saiba mais <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($homeVideo['visible']) || $homeVideo['title'] !== '' || $homeVideo['subtitle'] !== ''): ?>
         <div class="grid grid-cols-1 <?= ($homeVideo['player'] ?? 'none') !== 'none' ? 'md:grid-cols-2' : '' ?> gap-8 items-center">
             <?php if ($homeVideo['title'] !== '' || $homeVideo['subtitle'] !== '' || $homeVideo['channelUrl'] !== ''): ?>
             <div>
@@ -113,6 +217,7 @@ $showVideoSection = !empty($homeVideo['visible']) || $newsSectionTitle !== '';
                 </div>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 <?php endif; ?>

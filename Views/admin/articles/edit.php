@@ -72,6 +72,7 @@ require dirname(__DIR__) . '/partials/header.php';
         <input id="is_published" name="is_published" type="checkbox" <?= $article['is_published'] ? 'checked' : '' ?> class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
         <label for="is_published" class="ml-2 block text-sm text-gray-900">Publicado</label>
     </div>
+    <?php $seo = $article; require dirname(__DIR__) . '/partials/seo_fields.php'; ?>
     <div class="flex justify-end">
         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 shadow-sm">Atualizar Matéria</button>
     </div>

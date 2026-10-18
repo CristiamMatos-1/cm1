@@ -4,6 +4,8 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/coninfom/public_html/cm1
-    - /bin/mkdir -p "$DEPLOYPATH"
+    - /bin/mkdir -p "$DEPLOYPATH/storage/logs" "$DEPLOYPATH/storage/downloads" "$DEPLOYPATH/sessions" "$DEPLOYPATH/Public/uploads/articles" "$DEPLOYPATH/Public/uploads/banners" "$DEPLOYPATH/Public/uploads/videos"
     - /bin/cp -Rf Config Controllers Core Models Views Public database "$DEPLOYPATH/"
-    - /bin/cp -f index.php .htaccess README.md .cpanel.yml "$DEPLOYPATH/"
+    - /bin/cp -f index.php .htaccess README.md INSTALACAO.md .cpanel.yml .env.example .gitignore "$DEPLOYPATH/"
+    - /bin/cp -f storage/.htaccess "$DEPLOYPATH/storage/"
+    - /bin/cp -f sessions/.htaccess "$DEPLOYPATH/sessions/"

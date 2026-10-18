@@ -16,6 +16,21 @@ O DocumentRoot do cPanel aponta para a pasta do projeto (`/cm1`), não para `Pub
 - MySQL 5.7+ / MariaDB (produção) ou SQLite (desenvolvimento)
 - Extensões: pdo, pdo_mysql ou pdo_sqlite, mbstring, curl, gd
 
+## Instalação nova na hospedagem
+
+Guia completo: **[INSTALACAO.md](INSTALACAO.md)**
+
+1. Envie os arquivos do pacote (ou clone o repositório) para `public_html/cm1`
+2. Importe `database/install.sql` no MySQL (phpMyAdmin)
+3. Copie `.env.example` → `.env` e preencha `DB_*`
+4. Acesse `/cm1/login` com `admin@coninfoms.com.br` / `admin123` e troque a senha
+
+Para gerar o ZIP de hospedagem localmente:
+
+```bash
+bash scripts/build-hosting-package.sh
+```
+
 ## Configuração
 
 Copie `.env.example` para `.env` e ajuste:
@@ -29,12 +44,12 @@ DB_USER=coninfom_admin
 DB_PASS=********
 ```
 
-Na primeira execução o sistema cria as tabelas (`users`, `articles`, `pages`, `settings`) e, se não houver usuários, cria o admin definido em `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+Sem importar o SQL, na primeira execução o sistema ainda cria as tabelas via `Schema::ensure()` e, se não houver usuários, cria o admin de `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 
 ## Painel administrativo
 
 - URL: `/cm1/login`
-- Credencial inicial (somente se a tabela `users` estiver vazia): ver `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
+- Credencial do `install.sql`: `admin@coninfoms.com.br` / `admin123`
 
 ## Desenvolvimento local
 

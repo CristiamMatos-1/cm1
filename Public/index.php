@@ -61,6 +61,10 @@ $router->get('/', 'HomeController@index');
 $router->get('/materias', 'HomeController@materias');
 $router->get('/artigo', 'HomeController@artigo');
 $router->get('/pagina', 'HomeController@page');
+$router->get('/suporte', 'SupportController@index');
+$router->get('/download', 'SupportController@download');
+$router->get('/sitemap.xml', 'SeoController@sitemap');
+$router->get('/robots.txt', 'SeoController@robots');
 
 $router->get('/login', 'AuthController@login');
 $router->post('/login/authenticate', 'AuthController@authenticate');
@@ -79,12 +83,36 @@ $router->post('/admin/articles/generate-ai', 'ArticleController@generateAiConten
 $router->get('/admin/settings', 'SettingsController@index');
 $router->post('/admin/settings/store', 'SettingsController@store');
 
+$router->get('/admin/banners', 'AdminBannerController@index');
+$router->get('/admin/banners/create', 'AdminBannerController@create');
+$router->post('/admin/banners/store', 'AdminBannerController@store');
+$router->get('/admin/banners/edit', 'AdminBannerController@edit');
+$router->post('/admin/banners/update', 'AdminBannerController@update');
+$router->post('/admin/banners/delete', 'AdminBannerController@delete');
+
+$router->get('/admin/announcements', 'AdminAnnouncementController@index');
+$router->get('/admin/announcements/create', 'AdminAnnouncementController@create');
+$router->post('/admin/announcements/store', 'AdminAnnouncementController@store');
+$router->get('/admin/announcements/edit', 'AdminAnnouncementController@edit');
+$router->post('/admin/announcements/update', 'AdminAnnouncementController@update');
+$router->post('/admin/announcements/delete', 'AdminAnnouncementController@delete');
+
+$router->get('/admin/downloads', 'AdminDownloadController@index');
+$router->get('/admin/downloads/create', 'AdminDownloadController@create');
+$router->post('/admin/downloads/store', 'AdminDownloadController@store');
+$router->get('/admin/downloads/edit', 'AdminDownloadController@edit');
+$router->post('/admin/downloads/update', 'AdminDownloadController@update');
+$router->post('/admin/downloads/status', 'AdminDownloadController@setStatus');
+
 $router->get('/admin/users', 'AdminUserController@index');
 $router->get('/admin/users/create', 'AdminUserController@create');
 $router->post('/admin/users/store', 'AdminUserController@store');
 $router->get('/admin/users/edit', 'AdminUserController@edit');
 $router->post('/admin/users/update', 'AdminUserController@update');
 $router->post('/admin/users/delete', 'AdminUserController@delete');
+$router->post('/admin/users/anonymize', 'AdminUserController@anonymize');
+
+$router->get('/admin/audit', 'AdminAuditController@index');
 
 $router->get('/admin/pages', 'AdminPageController@index');
 $router->get('/admin/pages/create', 'AdminPageController@create');

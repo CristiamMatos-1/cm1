@@ -12,16 +12,20 @@
     </div>
 </section>
 
-<?php if (!empty($article['featured_image'])): ?>
+<?php
+$cover = article_cover($article, $globalCompanyLogo ?? '');
+$hasFeatured = !empty($article['featured_image']);
+?>
+<?php if ($cover !== ''): ?>
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-    <img src="<?= asset($article['featured_image']) ?>" alt="<?= e($article['title']) ?>" class="w-full h-auto max-h-[500px] object-cover rounded-xl shadow-2xl">
+    <img src="<?= asset($cover) ?>" alt="<?= e($article['title']) ?>" class="w-full h-auto max-h-[500px] rounded-xl shadow-2xl <?= $hasFeatured ? 'object-cover' : 'object-contain bg-white p-10 max-h-64' ?>">
 </div>
 <?php endif; ?>
 
 <section class="py-12 bg-white">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="prose prose-lg prose-blue mx-auto">
-            <?= $article['content'] ?>
+        <div class="prose prose-lg prose-blue mx-auto text-justify [&_p]:text-justify [&_li]:text-justify">
+            <?= \Core\HtmlContent::normalize((string) $article['content']) ?>
         </div>
         <div class="mt-12 pt-8 border-t border-gray-200 flex justify-between items-center flex-wrap gap-4">
             <a href="<?= url() ?>" class="text-brand-blue hover:text-blue-800 font-medium flex items-center gap-2 transition">

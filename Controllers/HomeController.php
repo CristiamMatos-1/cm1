@@ -2,10 +2,14 @@
 
 namespace Controllers;
 
+use Config\App;
 use Core\Controller;
+use Core\HtmlContent;
+use Core\Seo;
 use Core\Services\HomeVideoService;
 use Core\Services\SiteContextService;
 use Models\Article;
+use Models\Banner;
 use Models\Page;
 use Models\Setting;
 use Throwable;
@@ -30,12 +34,37 @@ class HomeController extends Controller
         }
 
         $homeVideo = (new HomeVideoService($settings))->forHomepage();
+        $banners = [];
+        try {
+            $banners = (new Banner())->getActive();
+        } catch (Throwable $e) {
+            $banners = [];
+        }
+
+        $newsPages = [];
+        try {
+            $newsPages = (new Page())->getPublishedFor(Page::PLACE_NEWS);
+        } catch (Throwable $e) {
+            $newsPages = [];
+        }
+
+        $company = $settings->get('company_name', 'CONINFOMS');
+        $heroSubtitle = $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.');
+        $homeTitle = $company . ' - Soluções em Tecnologia';
 
         $this->render('home/index', array_merge($this->siteContext->layoutData(), [
-            'title' => $settings->get('company_name', 'CONINFOMS') . ' - Soluções em Tecnologia',
+            'title' => $homeTitle,
+            'seo' => [
+                'title' => $homeTitle,
+                'description' => $heroSubtitle,
+                'keywords' => '',
+            ],
+            'canonicalUrl' => App::absoluteUrl(''),
+            'banners' => $banners,
             'articles' => $articles,
+            'newsPages' => $newsPages,
             'heroTitle' => $settings->get('hero_title', 'Inovação e Tecnologia para o seu Negócio'),
-            'heroSubtitle' => $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.'),
+            'heroSubtitle' => $heroSubtitle,
             'heroBtn1Text' => $settings->get('hero_btn1_text', 'Conheça a Empresa'),
             'heroBtn1Link' => $settings->get('hero_btn1_link', url('pagina', ['slug' => 'sobre-a-empresa'])),
             'heroBtn2Text' => $settings->get('hero_btn2_text', 'Nossos Serviços'),
@@ -58,10 +87,15 @@ class HomeController extends Controller
             $this->redirect('');
         }
 
+        $fallbackTitle = $page['title'] . ' - CONINFOMS';
+        $fallbackDesc = HtmlContent::excerpt((string) ($page['content'] ?? ''), 160);
+
         $this->render('home/page', array_merge($this->siteContext->layoutData(), [
-            'title' => $page['title'] . ' - CONINFOMS',
+            'title' => $fallbackTitle,
             'pageTitle' => $page['title'],
             'content' => $page['content'],
+            'seo' => Seo::resolve($page, $fallbackTitle, $fallbackDesc),
+            'canonicalUrl' => App::absoluteUrl('pagina', ['slug' => $page['slug']]),
         ]));
     }
 
@@ -76,6 +110,12 @@ class HomeController extends Controller
 
         $this->render('home/materias', array_merge($this->siteContext->layoutData(), [
             'title' => 'Matérias - CONINFOMS',
+            'seo' => [
+                'title' => 'Matérias - CONINFOMS',
+                'description' => 'Acompanhe artigos, tendências de tecnologia e atualizações da CONINFOMS.',
+                'keywords' => 'matérias, notícias, tecnologia',
+            ],
+            'canonicalUrl' => App::absoluteUrl('materias'),
             'articles' => $articles,
         ]));
     }
@@ -92,9 +132,14 @@ class HomeController extends Controller
             $this->redirect('');
         }
 
+        $fallbackTitle = $article['title'] . ' - CONINFOMS';
+        $fallbackDesc = HtmlContent::excerpt((string) ($article['content'] ?? ''), 160);
+
         $this->render('home/article', array_merge($this->siteContext->layoutData(), [
-            'title' => $article['title'] . ' - CONINFOMS',
+            'title' => $fallbackTitle,
             'article' => $article,
+            'seo' => Seo::resolve($article, $fallbackTitle, $fallbackDesc),
+            'canonicalUrl' => App::absoluteUrl('artigo', ['slug' => $article['slug']]),
         ]));
     }
 }

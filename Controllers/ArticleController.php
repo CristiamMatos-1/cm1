@@ -4,7 +4,9 @@ namespace Controllers;
 
 use Config\App;
 use Core\Auth;
+use Core\HtmlContent;
 use Core\Input;
+use Core\Seo;
 use Core\Services\GeminiAIService;
 use Core\Services\ImageUploadService;
 use Core\Services\SocialMediaService;
@@ -48,7 +50,7 @@ class ArticleController extends BaseAdminController
         $this->assertCsrf();
 
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if ($title === '' || $content === '') {
@@ -56,12 +58,12 @@ class ArticleController extends BaseAdminController
             $this->redirect('admin/articles/create');
         }
 
-        $data = [
+        $data = array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
             'author_id' => Auth::id(),
-        ];
+        ], Seo::fromPost());
 
         $image = $this->handleUpload('admin/articles/create');
         if ($image !== null) {
@@ -69,6 +71,9 @@ class ArticleController extends BaseAdminController
         }
 
         $articleId = $this->articleModel->create($data);
+        if ($articleId) {
+            $this->audit('create', 'articles', $articleId, $title);
+        }
 
         if ($articleId && isset($_POST['post_social']) && $isPublished) {
             $created = $this->articleModel->findById($articleId);
@@ -114,7 +119,7 @@ class ArticleController extends BaseAdminController
 
         $id = Input::int($_POST['id'] ?? null);
         $title = Input::string($_POST['title'] ?? '');
-        $content = (string) ($_POST['content'] ?? '');
+        $content = HtmlContent::normalize((string) ($_POST['content'] ?? ''));
         $isPublished = isset($_POST['is_published']) ? 1 : 0;
 
         if (!$id || $title === '' || $content === '') {
@@ -122,11 +127,11 @@ class ArticleController extends BaseAdminController
             $this->redirect('admin/articles/edit', ['id' => (string) $id]);
         }
 
-        $data = [
+        $data = array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ];
+        ], Seo::fromPost());
 
         $image = $this->handleUpload('admin/articles/edit', ['id' => (string) $id]);
         if ($image !== null) {
@@ -134,6 +139,7 @@ class ArticleController extends BaseAdminController
         }
 
         if ($this->articleModel->update($id, $data)) {
+            $this->audit('update', 'articles', $id, $title);
             $_SESSION['success_msg'] = 'Artigo atualizado com sucesso!';
             $this->redirect('admin/articles');
         }
@@ -170,6 +176,7 @@ class ArticleController extends BaseAdminController
 
         if ($id) {
             $this->articleModel->delete($id);
+            $this->audit('delete', 'articles', $id);
             $_SESSION['success_msg'] = 'Artigo removido com sucesso!';
         }
 
