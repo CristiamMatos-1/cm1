@@ -1,8 +1,22 @@
 <?php
+use Models\Setting;
+
 $currentNav = $currentNav ?? '';
 $pageHeading = $pageHeading ?? ($title ?? 'Admin');
 $user_name = $user_name ?? ($_SESSION['user_name'] ?? '');
 $useTinymce = $useTinymce ?? false;
+$adminCompanyName = 'Admin';
+$adminCompanyLogo = '';
+try {
+    $adminSettings = new Setting();
+    $adminCompanyName = $adminSettings->get('company_name', 'Admin');
+    $adminCompanyLogo = $adminSettings->get('company_logo', '');
+    if ($adminCompanyName === '') {
+        $adminCompanyName = 'Admin';
+    }
+} catch (Throwable $e) {
+    $adminCompanyName = 'Admin';
+}
 $navClass = static function (string $key, string $current): string {
     return $key === $current
         ? 'flex items-center gap-3 bg-gray-700 text-white px-4 py-3 rounded-lg'
@@ -14,7 +28,7 @@ $navClass = static function (string $key, string $current): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title ?? 'Admin') ?></title>
+    <title><?= e($title ?? ($adminCompanyName . ' - Admin')) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -41,9 +55,15 @@ $navClass = static function (string $key, string $current): string {
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out z-20 flex flex-col">
-        <div class="h-16 flex items-center px-6 bg-gray-900 font-bold text-xl tracking-wider justify-between">
-            <span>CONINFOMS</span>
-            <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white" aria-label="Fechar menu">
+        <div class="h-16 flex items-center px-4 bg-gray-900 justify-between gap-2">
+            <a href="<?= url('admin') ?>" class="flex items-center gap-2 min-w-0 font-bold text-lg tracking-wide text-white">
+                <?php if (!empty($adminCompanyLogo)): ?>
+                    <img src="<?= asset($adminCompanyLogo) ?>" alt="<?= e($adminCompanyName) ?>" class="h-8 w-auto max-w-[140px] object-contain bg-white/10 rounded px-1">
+                <?php else: ?>
+                    <span class="truncate"><?= e($adminCompanyName) ?></span>
+                <?php endif; ?>
+            </a>
+            <button id="close-sidebar" class="md:hidden text-gray-300 hover:text-white flex-shrink-0" aria-label="Fechar menu">
                 <i class="fa-solid fa-times text-xl"></i>
             </button>
         </div>

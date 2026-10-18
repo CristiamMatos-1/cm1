@@ -123,6 +123,41 @@ require __DIR__ . '/partials/header.php';
         </div>
     </div>
 
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-800">Redes sociais</h3>
+        <p class="text-sm text-gray-500">Preencha só as redes que quiser exibir. Campos vazios não aparecem no site.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+                <input type="url" name="social_instagram_url" value="<?= e($settings['social_instagram_url'] ?? '') ?>" placeholder="https://www.instagram.com/..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+                <input type="url" name="social_facebook_url" value="<?= e($settings['social_facebook_url'] ?? '') ?>" placeholder="https://www.facebook.com/..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
+                <input type="url" name="social_linkedin_url" value="<?= e($settings['social_linkedin_url'] ?? '') ?>" placeholder="https://www.linkedin.com/..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">YouTube (canal / perfil)</label>
+                <input type="url" name="social_youtube_url" value="<?= e($settings['social_youtube_url'] ?? '') ?>" placeholder="https://www.youtube.com/@..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">X (Twitter)</label>
+                <input type="url" name="social_x_url" value="<?= e($settings['social_x_url'] ?? '') ?>" placeholder="https://x.com/..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">TikTok</label>
+                <input type="url" name="social_tiktok_url" value="<?= e($settings['social_tiktok_url'] ?? '') ?>" placeholder="https://www.tiktok.com/@..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp (link opcional)</label>
+                <input type="url" name="social_whatsapp_url" value="<?= e($settings['social_whatsapp_url'] ?? '') ?>" placeholder="Deixe vazio para usar o número acima" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            </div>
+        </div>
+    </div>
+
     <?php
         $videoMode = $settings['home_video_mode'] ?? '';
         if (!in_array($videoMode, ['mp4', 'youtube_video', 'youtube_channel', 'none'], true)) {

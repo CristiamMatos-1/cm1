@@ -8,11 +8,8 @@
                         <?php if (!empty($globalCompanyLogo)): ?>
                             <img src="<?= asset($globalCompanyLogo) ?>" alt="<?= e($globalCompanyName) ?>" class="h-8 w-auto object-contain bg-white p-1 rounded">
                         <?php else: ?>
-                            <div class="w-8 h-8 bg-white rounded flex items-center justify-center text-brand-dark font-bold">
-                                <?= e(mb_substr($globalCompanyName ?? 'C', 0, 1)) ?>
-                            </div>
+                            <span class="font-bold text-xl"><?= e($globalCompanyName ?? 'CONINFOMS') ?></span>
                         <?php endif; ?>
-                        <span class="font-bold text-xl"><?= e($globalCompanyName ?? 'CONINFOMS') ?></span>
                     </div>
                     <?php
                     $footerAboutText = 'Soluções em tecnologia da informação. Trazendo inovação e estabilidade para o seu negócio.';
@@ -24,6 +21,15 @@
                     <p class="text-gray-400 text-sm leading-relaxed">
                         <?= e($footerAboutText) ?>
                     </p>
+                    <?php if (!empty($socialLinks)): ?>
+                        <div class="flex flex-wrap gap-3 mt-4">
+                            <?php foreach ($socialLinks as $social): ?>
+                                <a href="<?= e($social['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors" aria-label="<?= e($social['label']) ?>">
+                                    <i class="<?= e($social['icon']) ?> text-xl"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div>

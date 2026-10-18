@@ -1,4 +1,5 @@
 <?php
+use Core\Services\SocialLinksService;
 use Models\Page;
 use Models\Setting;
 
@@ -7,6 +8,7 @@ $globalCompanyLogo = '';
 $menuPages = [];
 $clientAreaText = 'Área do Cliente';
 $clientAreaLink = 'https://coninfoms.com.br/cm/';
+$socialLinks = $socialLinks ?? [];
 
 try {
     $globalSetting = new Setting();
@@ -15,6 +17,9 @@ try {
     $clientAreaText = $globalSetting->get('client_area_text', 'Área do Cliente');
     $clientAreaLink = $globalSetting->get('client_area_link', 'https://coninfoms.com.br/cm/');
     $menuPages = (new Page())->getPublished();
+    if ($socialLinks === []) {
+        $socialLinks = (new SocialLinksService($globalSetting))->links();
+    }
 } catch (Throwable $e) {
     error_log('Layout header: ' . $e->getMessage());
 }
@@ -49,25 +54,32 @@ try {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <div class="flex-shrink-0 flex items-center">
-                    <a href="<?= url() ?>" class="flex items-center gap-2">
+                    <a href="<?= url() ?>" class="flex items-center gap-2 min-w-0">
                         <?php if (!empty($globalCompanyLogo)): ?>
                             <img src="<?= asset($globalCompanyLogo) ?>" alt="<?= e($globalCompanyName) ?>" class="h-10 w-auto object-contain">
                         <?php else: ?>
-                            <div class="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                                <?= e(mb_substr($globalCompanyName, 0, 1)) ?>
-                            </div>
+                            <span class="font-bold text-2xl text-brand-dark tracking-tight truncate"><?= e($globalCompanyName) ?></span>
                         <?php endif; ?>
-                        <span class="font-bold text-2xl text-brand-dark tracking-tight"><?= e($globalCompanyName) ?></span>
                     </a>
                 </div>
 
-                <nav class="hidden md:flex space-x-8 items-center">
+                <nav class="hidden md:flex space-x-6 items-center">
                     <a href="<?= url() ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Início</a>
                     <a href="<?= url('materias') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Matérias</a>
                     <a href="<?= url('suporte') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Suporte</a>
                     <?php foreach ($menuPages as $mp): ?>
                         <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors"><?= e($mp['title']) ?></a>
                     <?php endforeach; ?>
+                    <?php if (!empty($socialLinks)): ?>
+                        <div class="flex items-center gap-3 pl-2 border-l border-gray-200">
+                            <?php foreach ($socialLinks as $social): ?>
+                                <?php if (($social['key'] ?? '') === 'whatsapp') continue; ?>
+                                <a href="<?= e($social['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-brand-blue transition-colors" aria-label="<?= e($social['label']) ?>">
+                                    <i class="<?= e($social['icon']) ?> text-lg"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                     <?php if (!empty(trim($clientAreaText ?? ''))): ?>
                         <a href="<?= e($clientAreaLink) ?>" target="_blank" class="bg-brand-blue text-white px-5 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
                             <i class="fa-solid fa-user"></i> <?= e($clientAreaText) ?>
@@ -91,6 +103,16 @@ try {
                 <?php foreach ($menuPages as $mp): ?>
                     <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50"><?= e($mp['title']) ?></a>
                 <?php endforeach; ?>
+                <?php if (!empty($socialLinks)): ?>
+                    <div class="flex flex-wrap gap-4 px-3 py-3">
+                        <?php foreach ($socialLinks as $social): ?>
+                            <?php if (($social['key'] ?? '') === 'whatsapp') continue; ?>
+                            <a href="<?= e($social['url']) ?>" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-brand-blue" aria-label="<?= e($social['label']) ?>">
+                                <i class="<?= e($social['icon']) ?> text-xl"></i>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
                 <?php if (!empty(trim($clientAreaText ?? ''))): ?>
                     <a href="<?= e($clientAreaLink) ?>" target="_blank" class="block mt-4 px-3 py-2 text-center rounded-md text-base font-medium bg-brand-blue text-white hover:bg-blue-700">
                         <i class="fa-solid fa-user mr-2"></i> <?= e($clientAreaText) ?>

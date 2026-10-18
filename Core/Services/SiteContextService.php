@@ -14,19 +14,24 @@ class SiteContextService
     {
         try {
             $settings = new Setting();
-            $number = $settings->get('whatsapp_number', '556799999999');
-            $message = $settings->get('whatsapp_message', 'Olá! Gostaria de mais informações sobre os serviços da CONINFOMS.');
+            $number = preg_replace('/\D+/', '', $settings->get('whatsapp_number', '')) ?? '';
+            $message = $settings->get('whatsapp_message', 'Olá! Gostaria de mais informações.');
+            $whatsappUrl = $number !== ''
+                ? 'https://wa.me/' . $number . '?text=' . urlencode($message)
+                : '';
 
             return [
-                'whatsappUrl' => 'https://wa.me/' . preg_replace('/\D+/', '', $number) . '?text=' . urlencode($message),
+                'whatsappUrl' => $whatsappUrl,
                 'contactEmail' => $settings->get('contact_email', 'contato@coninfoms.com.br'),
                 'contactPhone' => $settings->get('contact_phone', '(00) 0000-0000'),
+                'socialLinks' => (new SocialLinksService($settings))->links(),
             ];
         } catch (Throwable $e) {
             return [
-                'whatsappUrl' => 'https://wa.me/556799999999',
+                'whatsappUrl' => '',
                 'contactEmail' => 'contato@coninfoms.com.br',
                 'contactPhone' => '(00) 0000-0000',
+                'socialLinks' => [],
             ];
         }
     }
