@@ -1,15 +1,9 @@
-<?php
-// Gera o token CSRF se não existir
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title) ?></title>
+    <title><?= e($title) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 h-screen flex items-center justify-center">
@@ -23,13 +17,13 @@ if (empty($_SESSION['csrf_token'])) {
 
         <?php if (!empty($error)): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline"><?= htmlspecialchars($error) ?></span>
+                <span class="block sm:inline"><?= e($error) ?></span>
             </div>
         <?php endif; ?>
 
-        <form action="/cm1/login/authenticate" method="POST">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            
+        <form action="<?= url('login/authenticate') ?>" method="POST">
+            <?= csrf_field() ?>
+
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 text-sm font-bold mb-2">E-mail</label>
                 <input type="email" id="email" name="email" required autofocus
@@ -44,14 +38,12 @@ if (empty($_SESSION['csrf_token'])) {
                        placeholder="********">
             </div>
 
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-colors">
-                    Entrar
-                </button>
-            </div>
-            
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-colors">
+                Entrar
+            </button>
+
             <div class="mt-4 text-center">
-                <a href="/" class="text-sm text-blue-500 hover:text-blue-800">Voltar para o site</a>
+                <a href="<?= url() ?>" class="text-sm text-blue-500 hover:text-blue-800">Voltar para o site</a>
             </div>
         </form>
     </div>

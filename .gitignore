@@ -1,0 +1,11 @@
+.env
+php-error.log
+Public/error_log
+storage/*.sqlite
+storage/*.sqlite-journal
+storage/logs/*
+!storage/logs/.gitkeep
+sessions/sess_*
+Public/uploads/videos/*
+!Public/uploads/videos/.gitkeep
+.DS_Store

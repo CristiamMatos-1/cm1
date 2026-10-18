@@ -2,20 +2,19 @@
 
 namespace Controllers;
 
+use Core\Auth;
 use Core\Controller;
+use Core\Csrf;
+use Core\Input;
 use Models\User;
+use Throwable;
 
 class AuthController extends Controller
 {
-    /**
-     * Exibe a tela de login
-     */
     public function login(): void
     {
-        // Se já estiver logado, redireciona para o admin
-        if (isset($_SESSION['user_id'])) {
-            header('Location: /cm1/admin');
-            exit;
+        if (Auth::check()) {
+            $this->redirect('admin');
         }
 
         $error = $_SESSION['login_error'] ?? null;
@@ -23,64 +22,49 @@ class AuthController extends Controller
 
         $this->render('auth/login', [
             'title' => 'Login Administrativo',
-            'error' => $error
+            'error' => $error,
         ]);
     }
 
-    /**
-     * Processa a tentativa de login (POST)
-     */
     public function authenticate(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /cm1/login');
-            exit;
+            $this->redirect('login');
         }
 
-        // CSRF Token Check (Básico)
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!Csrf::validate($_POST['csrf_token'] ?? null)) {
             $_SESSION['login_error'] = 'Sessão expirada ou requisição inválida.';
-            header('Location: /cm1/login');
-            exit;
+            $this->redirect('login');
         }
 
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $password = $_POST['password'] ?? '';
+        $email = Input::email($_POST['email'] ?? '');
+        $password = (string) ($_POST['password'] ?? '');
 
-        if (empty($email) || empty($password)) {
+        if ($email === '' || $password === '') {
             $_SESSION['login_error'] = 'Preencha todos os campos.';
-            header('Location: /cm1/login');
-            exit;
+            $this->redirect('login');
         }
 
-        $userModel = new User();
-        $user = $userModel->authenticate($email, $password);
+        try {
+            $user = (new User())->authenticate($email, $password);
+        } catch (Throwable $e) {
+            error_log('Login falhou: ' . $e->getMessage());
+            $_SESSION['login_error'] = 'Não foi possível autenticar. Tente novamente.';
+            $this->redirect('login');
+        }
 
         if ($user) {
-            // Regenera o ID da sessão para prevenir Session Fixation
-            session_regenerate_id(true);
-            
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-            
-            header('Location: /cm1/admin');
-            exit;
-        } else {
-            $_SESSION['login_error'] = 'E-mail ou senha incorretos.';
-            header('Location: /cm1/login');
-            exit;
+            Auth::login($user);
+            $this->redirect('admin');
         }
+
+        $_SESSION['login_error'] = 'E-mail ou senha incorretos.';
+        $this->redirect('login');
     }
 
-    /**
-     * Encerra a sessão
-     */
     public function logout(): void
     {
-        session_unset();
-        session_destroy();
-        header('Location: /cm1/login');
-        exit;
+        Auth::logout();
+        $this->redirect('login');
     }
 }

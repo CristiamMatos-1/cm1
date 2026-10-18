@@ -2,42 +2,34 @@
 
 namespace Core\Services;
 
+use Models\Setting;
+
 class SocialMediaService
 {
     private string $metaAccessToken;
     private string $instagramAccountId;
     private string $facebookPageId;
 
-    public function __construct()
+    public function __construct(?Setting $settings = null)
     {
-        // Em produção, deve vir do .env
-        $this->metaAccessToken = 'COLOQUE_SEU_ACCESS_TOKEN_AQUI';
-        $this->instagramAccountId = 'COLOQUE_SEU_IG_ACCOUNT_ID';
-        $this->facebookPageId = 'COLOQUE_SEU_FB_PAGE_ID';
+        $settings = $settings ?? new Setting();
+        $this->metaAccessToken = $settings->get('facebook_access_token', $settings->get('meta_access_token', ''));
+        $this->instagramAccountId = $settings->get('instagram_account_id', '');
+        $this->facebookPageId = $settings->get('facebook_page_id', $settings->get('meta_page_id', ''));
     }
 
-    /**
-     * Publica na Meta (Facebook e Instagram)
-     * Obs: Este é um mock/esqueleto estrutural para o escopo do projeto.
-     * Na prática, exige fluxo de OAuth, aprovação de app na Meta e tratamento de webhooks para imagens locais.
-     */
     public function postToMeta(string $title, string $link, ?string $imageUrl = null): bool
     {
-        if ($this->metaAccessToken === 'COLOQUE_SEU_ACCESS_TOKEN_AQUI') {
-            // Log apenas para depuração, indicando que o serviço foi acionado
-            error_log("SocialMediaService: Post não enviado. Credenciais da Meta não configuradas. Título: $title");
+        if ($this->metaAccessToken === '' || $this->facebookPageId === '') {
+            error_log("SocialMediaService: credenciais da Meta não configuradas. Título: {$title}");
             return false;
         }
 
         $message = "Nova matéria no ar: {$title}\n\nLeia mais em: {$link}";
-
-        // Simulação do disparo para Facebook
         $this->postToFacebook($message, $link);
 
-        // Simulação do disparo para Instagram (Requer imagem hospedada publicamente)
-        if ($imageUrl) {
-            // Em dev local a Meta não acessa localhost, a imagem precisa ser pública
-            // $this->postToInstagram($message, $imageUrl);
+        if ($imageUrl && $this->instagramAccountId !== '') {
+            $this->postToInstagram($message, $imageUrl);
         }
 
         return true;
@@ -46,19 +38,26 @@ class SocialMediaService
     private function postToFacebook(string $message, string $link): void
     {
         $url = "https://graph.facebook.com/v18.0/{$this->facebookPageId}/feed";
-        
-        $data = [
+        $payload = http_build_query([
             'message' => $message,
             'link' => $link,
-            'access_token' => $this->metaAccessToken
-        ];
+            'access_token' => $this->metaAccessToken,
+        ]);
 
-        // Chamada cURL omitida para brevidade (estrutura idêntica ao do Gemini)
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_TIMEOUT => 10,
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
     }
 
     private function postToInstagram(string $caption, string $imageUrl): void
     {
-        // 1. Criar o contêiner de mídia
-        // 2. Publicar o contêiner
+        error_log('SocialMediaService: Instagram requer URL pública da imagem. Caption omitido no log.');
+        unset($caption, $imageUrl);
     }
 }
