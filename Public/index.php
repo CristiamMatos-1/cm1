@@ -110,6 +110,9 @@ $router->post('/admin/users/store', 'AdminUserController@store');
 $router->get('/admin/users/edit', 'AdminUserController@edit');
 $router->post('/admin/users/update', 'AdminUserController@update');
 $router->post('/admin/users/delete', 'AdminUserController@delete');
+$router->post('/admin/users/anonymize', 'AdminUserController@anonymize');
+
+$router->get('/admin/audit', 'AdminAuditController@index');
 
 $router->get('/admin/pages', 'AdminPageController@index');
 $router->get('/admin/pages/create', 'AdminPageController@create');

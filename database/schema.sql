@@ -97,3 +97,18 @@ CREATE TABLE IF NOT EXISTS `announcements` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX `idx_announcements_status_updated` (`status`, `updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Auditoria do painel (criar/editar/excluir/status)
+CREATE TABLE IF NOT EXISTS `audit_logs` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NULL,
+    `action` VARCHAR(50) NOT NULL,
+    `table_name` VARCHAR(64) NOT NULL,
+    `record_id` INT NULL,
+    `details` VARCHAR(500) NOT NULL DEFAULT '',
+    `ip_address` VARCHAR(45) NOT NULL DEFAULT '',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_audit_created` (`created_at`),
+    INDEX `idx_audit_table` (`table_name`, `created_at`),
+    CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

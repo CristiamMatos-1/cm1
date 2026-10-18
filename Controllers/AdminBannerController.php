@@ -58,13 +58,14 @@ class AdminBannerController extends BaseAdminController
             $this->redirect('admin/banners/create');
         }
 
-        $this->banners->create([
+        $id = $this->banners->create([
             'title' => $title,
             'image_path' => $imagePath,
             'link_url' => $linkUrl,
             'sort_order' => $sortOrder,
             'is_active' => $isActive,
         ]);
+        $this->audit('create', 'banners', $id, $title);
 
         $_SESSION['success_msg'] = 'Banner cadastrado com sucesso.';
         $this->redirect('admin/banners');
@@ -134,6 +135,7 @@ class AdminBannerController extends BaseAdminController
         }
 
         $this->banners->update($id, $data);
+        $this->audit('update', 'banners', $id, $title . ($isActive ? ' [ativo]' : ' [inativo]'));
         $_SESSION['success_msg'] = 'Banner atualizado com sucesso.';
         $this->redirect('admin/banners');
     }
@@ -147,6 +149,7 @@ class AdminBannerController extends BaseAdminController
             if ($current) {
                 $this->images->deleteBanner($current['image_path'] ?? null);
                 $this->banners->delete($id);
+                $this->audit('delete', 'banners', $id, (string) ($current['title'] ?? ''));
                 $_SESSION['success_msg'] = 'Banner excluído.';
             }
         }

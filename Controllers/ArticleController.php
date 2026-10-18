@@ -71,6 +71,9 @@ class ArticleController extends BaseAdminController
         }
 
         $articleId = $this->articleModel->create($data);
+        if ($articleId) {
+            $this->audit('create', 'articles', $articleId, $title);
+        }
 
         if ($articleId && isset($_POST['post_social']) && $isPublished) {
             $created = $this->articleModel->findById($articleId);
@@ -136,6 +139,7 @@ class ArticleController extends BaseAdminController
         }
 
         if ($this->articleModel->update($id, $data)) {
+            $this->audit('update', 'articles', $id, $title);
             $_SESSION['success_msg'] = 'Artigo atualizado com sucesso!';
             $this->redirect('admin/articles');
         }
@@ -172,6 +176,7 @@ class ArticleController extends BaseAdminController
 
         if ($id) {
             $this->articleModel->delete($id);
+            $this->audit('delete', 'articles', $id);
             $_SESSION['success_msg'] = 'Artigo removido com sucesso!';
         }
 

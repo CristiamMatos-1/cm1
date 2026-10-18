@@ -32,8 +32,10 @@ class Schema
             self::createAnnouncements($pdo, $db->isSqlite());
             self::ensurePageMenuColumns($pdo, $db->isSqlite());
             self::ensureSeoColumns($pdo, $db->isSqlite());
+            self::createAuditLogs($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
+            self::seedPrivacyPolicy($pdo);
         } catch (Throwable $e) {
             error_log('Schema::ensure falhou: ' . $e->getMessage());
         }
@@ -384,6 +386,82 @@ class Schema
         ');
         $stmt->execute([':table' => $table, ':column' => $column]);
         return (int) $stmt->fetchColumn() > 0;
+    }
+
+    private static function createAuditLogs(PDO $pdo, bool $sqlite): void
+    {
+        if ($sqlite) {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS audit_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NULL,
+                    action TEXT NOT NULL,
+                    table_name TEXT NOT NULL,
+                    record_id INTEGER NULL,
+                    details TEXT NOT NULL DEFAULT '',
+                    ip_address TEXT NOT NULL DEFAULT '',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+                )
+            ");
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs (created_at)');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_audit_table ON audit_logs (table_name, created_at)');
+            return;
+        }
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `audit_logs` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `user_id` INT NULL,
+                `action` VARCHAR(50) NOT NULL,
+                `table_name` VARCHAR(64) NOT NULL,
+                `record_id` INT NULL,
+                `details` VARCHAR(500) NOT NULL DEFAULT '',
+                `ip_address` VARCHAR(45) NOT NULL DEFAULT '',
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX `idx_audit_created` (`created_at`),
+                INDEX `idx_audit_table` (`table_name`, `created_at`),
+                CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
+
+    private static function seedPrivacyPolicy(PDO $pdo): void
+    {
+        $stmt = $pdo->prepare('SELECT id FROM pages WHERE slug = :slug LIMIT 1');
+        $stmt->execute([':slug' => 'politica-de-privacidade']);
+        if ($stmt->fetch()) {
+            return;
+        }
+
+        $content = '<h2>Política de Privacidade</h2>'
+            . '<p>Esta Política de Privacidade descreve como a CONINFOMS trata dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).</p>'
+            . '<h2>Cookies</h2>'
+            . '<p>Utilizamos cookies necessários ao funcionamento do site e, mediante consentimento, cookies opcionais para preferências. Você pode aceitar todos ou gerenciar suas preferências no banner de cookies.</p>'
+            . '<h2>Seus direitos</h2>'
+            . '<p>Você pode solicitar acesso, correção, anonimização ou exclusão de dados pessoais pelos canais de contato disponibilizados neste site.</p>'
+            . '<h2>Contato</h2>'
+            . '<p>Em caso de dúvidas sobre privacidade, utilize o e-mail de contato institucional.</p>';
+
+        $insert = $pdo->prepare('
+            INSERT INTO pages (
+                title, slug, content, is_published,
+                show_in_header, show_in_footer, show_in_news, menu_order,
+                meta_title, meta_description, meta_keywords
+            ) VALUES (
+                :title, :slug, :content, 1,
+                0, 1, 0, 100,
+                :meta_title, :meta_description, :meta_keywords
+            )
+        ');
+        $insert->execute([
+            ':title' => 'Política de Privacidade',
+            ':slug' => 'politica-de-privacidade',
+            ':content' => $content,
+            ':meta_title' => 'Política de Privacidade | CONINFOMS',
+            ':meta_description' => 'Saiba como a CONINFOMS trata dados pessoais e cookies conforme a LGPD.',
+            ':meta_keywords' => 'lgpd, privacidade, cookies',
+        ]);
     }
 
     /**

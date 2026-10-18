@@ -114,6 +114,7 @@ class SettingsController extends BaseAdminController
         }
 
         if (empty($_SESSION['settings_error'])) {
+            $this->audit('update', 'settings', null, 'Configurações globais');
             $_SESSION['settings_msg'] = 'Configurações atualizadas com sucesso!';
         }
         $this->redirect('admin/settings');

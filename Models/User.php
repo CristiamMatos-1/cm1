@@ -102,4 +102,35 @@ class User extends Model
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    /**
+     * Anonimiza dados pessoais (LGPD), mantendo o registro para integridade referencial.
+     */
+    public function anonymize(int $id): bool
+    {
+        $user = $this->findById($id);
+        if (!$user) {
+            return false;
+        }
+
+        $anonEmail = 'anonimizado-' . $id . '@invalid.local';
+        $stmt = $this->db->prepare('
+            UPDATE users
+            SET name = :name, email = :email, password = :password
+            WHERE id = :id
+        ');
+
+        return $stmt->execute([
+            ':id' => $id,
+            ':name' => 'Usuário anonimizado',
+            ':email' => $anonEmail,
+            ':password' => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
+        ]);
+    }
+
+    public function isAnonymized(array $user): bool
+    {
+        $email = (string) ($user['email'] ?? '');
+        return str_starts_with($email, 'anonimizado-') && str_ends_with($email, '@invalid.local');
+    }
 }

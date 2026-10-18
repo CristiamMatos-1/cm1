@@ -98,6 +98,9 @@ $navClass = static function (string $key, string $current): string {
             <a href="<?= url('admin/users') ?>" class="<?= $navClass('users', $currentNav) ?>">
                 <i class="fa-solid fa-users"></i> Usuários
             </a>
+            <a href="<?= url('admin/audit') ?>" class="<?= $navClass('audit', $currentNav) ?>">
+                <i class="fa-solid fa-clipboard-list"></i> Auditoria
+            </a>
             <a href="<?= url('admin/settings') ?>" class="<?= $navClass('settings', $currentNav) ?>">
                 <i class="fa-solid fa-cog"></i> Configurações
             </a>

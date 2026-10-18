@@ -60,7 +60,7 @@ class AdminDownloadController extends BaseAdminController
             $this->redirect('admin/downloads/create');
         }
 
-        $this->downloads->create([
+        $id = $this->downloads->create([
             'display_name' => $displayName,
             'stored_name' => $uploaded['stored_name'],
             'original_name' => $uploaded['original_name'],
@@ -70,6 +70,7 @@ class AdminDownloadController extends BaseAdminController
             'sort_order' => $sortOrder,
             'created_by' => Auth::id(),
         ]);
+        $this->audit('create', 'downloads', $id, $displayName);
 
         $_SESSION['success_msg'] = 'Arquivo cadastrado com sucesso.';
         $this->redirect('admin/downloads');
@@ -133,6 +134,7 @@ class AdminDownloadController extends BaseAdminController
         }
 
         $this->downloads->update($id, $data);
+        $this->audit('update', 'downloads', $id, $data['display_name'] ?? '');
         $_SESSION['success_msg'] = 'Arquivo atualizado com sucesso.';
         $this->redirect('admin/downloads');
     }
@@ -144,6 +146,7 @@ class AdminDownloadController extends BaseAdminController
         $status = $this->postedStatus(Download::STATUS_REMOVED);
         if ($id) {
             $this->downloads->setStatus($id, $status);
+            $this->audit('status', 'downloads', $id, $status);
             $_SESSION['success_msg'] = 'Status atualizado.';
         }
         $this->redirect('admin/downloads');

@@ -61,6 +61,8 @@ class AdminUserController extends BaseAdminController
         ]);
 
         if ($success) {
+            $created = $this->userModel->findByEmail($email);
+            $this->audit('create', 'users', $created ? (int) $created['id'] : null, $email);
             $_SESSION['user_msg'] = 'Usuário criado com sucesso!';
             $this->redirect('admin/users');
         }
@@ -115,6 +117,10 @@ class AdminUserController extends BaseAdminController
             'password' => $password,
         ]);
 
+        if ($success) {
+            $this->audit('update', 'users', $id, $email);
+        }
+
         $_SESSION[$success ? 'user_msg' : 'user_error'] = $success
             ? 'Usuário atualizado com sucesso!'
             : 'Falha ao atualizar o usuário.';
@@ -131,10 +137,50 @@ class AdminUserController extends BaseAdminController
             $_SESSION['user_error'] = 'Você não pode excluir a si mesmo enquanto estiver logado.';
         } else {
             $success = $this->userModel->delete($id);
+            if ($success) {
+                $this->audit('delete', 'users', $id);
+            }
             $_SESSION[$success ? 'user_msg' : 'user_error'] = $success
                 ? 'Usuário excluído com sucesso!'
                 : 'Não é possível excluir o único usuário do sistema.';
         }
+
+        $this->redirect('admin/users');
+    }
+
+    public function anonymize(): void
+    {
+        $this->assertCsrf();
+        $id = Input::int($_POST['id'] ?? 0) ?? 0;
+
+        if ($id <= 0) {
+            $_SESSION['user_error'] = 'Usuário inválido.';
+            $this->redirect('admin/users');
+        }
+
+        if ($id === Auth::id()) {
+            $_SESSION['user_error'] = 'Você não pode anonimizar a si mesmo enquanto estiver logado.';
+            $this->redirect('admin/users');
+        }
+
+        $user = $this->userModel->findById($id);
+        if (!$user) {
+            $_SESSION['user_error'] = 'Usuário não encontrado.';
+            $this->redirect('admin/users');
+        }
+
+        if ($this->userModel->isAnonymized($user)) {
+            $_SESSION['user_error'] = 'Este usuário já está anonimizado.';
+            $this->redirect('admin/users');
+        }
+
+        $success = $this->userModel->anonymize($id);
+        if ($success) {
+            $this->audit('anonymize', 'users', $id, 'LGPD: dados pessoais removidos');
+        }
+        $_SESSION[$success ? 'user_msg' : 'user_error'] = $success
+            ? 'Dados do usuário anonimizados conforme LGPD.'
+            : 'Falha ao anonimizar o usuário.';
 
         $this->redirect('admin/users');
     }

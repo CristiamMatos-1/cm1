@@ -54,11 +54,112 @@
                 </div>
             </div>
 
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
-                &copy; <?= date('Y') ?> <?= e($globalCompanyName ?? 'CONINFOMS') ?>. Todos os direitos reservados.
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500 space-y-2">
+                <p>&copy; <?= date('Y') ?> <?= e($globalCompanyName ?? 'CONINFOMS') ?>. Todos os direitos reservados.</p>
+                <p>
+                    <a href="<?= url('pagina', ['slug' => 'politica-de-privacidade']) ?>" class="hover:text-white transition-colors">Política de Privacidade</a>
+                    <span class="mx-2 text-gray-600">·</span>
+                    <button type="button" id="cookie-prefs-open" class="hover:text-white transition-colors underline-offset-2 hover:underline">Preferências de cookies</button>
+                </p>
             </div>
         </div>
     </footer>
+
+    <div id="cookie-consent" class="hidden fixed inset-x-0 bottom-0 z-[70] p-4 md:p-6">
+        <div class="max-w-4xl mx-auto bg-white border border-gray-200 shadow-2xl rounded-xl p-5 md:p-6">
+            <div id="cookie-consent-main">
+                <h2 class="text-lg font-bold text-gray-900 mb-2">Cookies e privacidade</h2>
+                <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                    Usamos cookies necessários ao funcionamento do site e, com o seu consentimento, cookies opcionais.
+                    Consulte a
+                    <a href="<?= url('pagina', ['slug' => 'politica-de-privacidade']) ?>" class="text-brand-blue font-medium hover:underline">Política de Privacidade</a>.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                    <button type="button" id="cookie-manage-btn" class="px-4 py-2.5 rounded-md border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">Gerenciar</button>
+                    <button type="button" id="cookie-accept-btn" class="px-4 py-2.5 rounded-md bg-brand-blue text-white font-medium hover:bg-blue-700">Aceitar todos</button>
+                </div>
+            </div>
+            <div id="cookie-consent-manage" class="hidden">
+                <h2 class="text-lg font-bold text-gray-900 mb-2">Gerenciar preferências</h2>
+                <p class="text-sm text-gray-600 mb-4">Escolha quais categorias deseja permitir.</p>
+                <div class="space-y-3 mb-5">
+                    <label class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                        <input type="checkbox" checked disabled class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <span>
+                            <span class="block text-sm font-semibold text-gray-900">Necessários</span>
+                            <span class="block text-xs text-gray-500">Essenciais para o site (sempre ativos).</span>
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 cursor-pointer">
+                        <input type="checkbox" id="cookie-pref-analytics" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <span>
+                            <span class="block text-sm font-semibold text-gray-900">Analíticos</span>
+                            <span class="block text-xs text-gray-500">Ajudam a entender o uso do site.</span>
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 cursor-pointer">
+                        <input type="checkbox" id="cookie-pref-marketing" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <span>
+                            <span class="block text-sm font-semibold text-gray-900">Marketing</span>
+                            <span class="block text-xs text-gray-500">Usados para comunicações e campanhas.</span>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                    <button type="button" id="cookie-manage-back" class="px-4 py-2.5 rounded-md border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">Voltar</button>
+                    <button type="button" id="cookie-save-prefs" class="px-4 py-2.5 rounded-md bg-brand-blue text-white font-medium hover:bg-blue-700">Salvar preferências</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const KEY = 'cm1_cookie_consent_v1';
+        const banner = document.getElementById('cookie-consent');
+        const main = document.getElementById('cookie-consent-main');
+        const manage = document.getElementById('cookie-consent-manage');
+        if (!banner || !main || !manage) return;
+
+        const read = () => {
+            try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+        };
+        const write = (prefs) => {
+            try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {}
+            banner.classList.add('hidden');
+        };
+        const showManage = (open) => {
+            main.classList.toggle('hidden', open);
+            manage.classList.toggle('hidden', !open);
+            if (open) {
+                const prefs = read() || {};
+                const a = document.getElementById('cookie-pref-analytics');
+                const m = document.getElementById('cookie-pref-marketing');
+                if (a) a.checked = !!prefs.analytics;
+                if (m) m.checked = !!prefs.marketing;
+            }
+        };
+
+        const existing = read();
+        if (!existing || existing.necessary !== true) {
+            banner.classList.remove('hidden');
+        }
+
+        document.getElementById('cookie-accept-btn')?.addEventListener('click', () => {
+            write({ necessary: true, analytics: true, marketing: true, at: Date.now() });
+        });
+        document.getElementById('cookie-manage-btn')?.addEventListener('click', () => showManage(true));
+        document.getElementById('cookie-manage-back')?.addEventListener('click', () => showManage(false));
+        document.getElementById('cookie-save-prefs')?.addEventListener('click', () => {
+            const analytics = !!document.getElementById('cookie-pref-analytics')?.checked;
+            const marketing = !!document.getElementById('cookie-pref-marketing')?.checked;
+            write({ necessary: true, analytics, marketing, at: Date.now() });
+        });
+        document.getElementById('cookie-prefs-open')?.addEventListener('click', () => {
+            banner.classList.remove('hidden');
+            showManage(true);
+        });
+    });
+    </script>
 
     <?php if (!empty($whatsappUrl)): ?>
     <a href="<?= e($whatsappUrl) ?>" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-lg hover:bg-green-600 hover:-translate-y-1 transition-transform z-50" aria-label="WhatsApp">

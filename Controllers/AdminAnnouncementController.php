@@ -51,11 +51,12 @@ class AdminAnnouncementController extends BaseAdminController
             $this->redirect('admin/announcements/create');
         }
 
-        $this->announcements->create([
+        $id = $this->announcements->create([
             'title' => $title,
             'body' => $body,
             'status' => $status,
         ]);
+        $this->audit('create', 'announcements', $id, $status);
 
         $_SESSION['success_msg'] = 'Aviso cadastrado com sucesso.';
         $this->redirect('admin/announcements');
@@ -106,6 +107,7 @@ class AdminAnnouncementController extends BaseAdminController
             'body' => $body,
             'status' => $status,
         ]);
+        $this->audit('update', 'announcements', $id, $status);
 
         $_SESSION['success_msg'] = 'Aviso atualizado com sucesso.';
         $this->redirect('admin/announcements');
@@ -117,6 +119,7 @@ class AdminAnnouncementController extends BaseAdminController
         $id = Input::int($_POST['id'] ?? null);
         if ($id) {
             $this->announcements->delete($id);
+            $this->audit('delete', 'announcements', $id);
             $_SESSION['success_msg'] = 'Aviso excluído.';
         }
         $this->redirect('admin/announcements');
