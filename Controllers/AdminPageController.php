@@ -4,6 +4,7 @@ namespace Controllers;
 
 use Core\HtmlContent;
 use Core\Input;
+use Core\Seo;
 use Models\Page;
 
 class AdminPageController extends BaseAdminController
@@ -74,7 +75,7 @@ class AdminPageController extends BaseAdminController
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ], $this->placementFromPost()));
+        ], $this->placementFromPost(), Seo::fromPost()));
 
         $_SESSION['page_msg'] = 'Página criada com sucesso!';
         $this->redirect('admin/pages');
@@ -97,7 +98,7 @@ class AdminPageController extends BaseAdminController
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ], $this->placementFromPost()));
+        ], $this->placementFromPost(), Seo::fromPost()));
 
         $_SESSION['page_msg'] = 'Página atualizada com sucesso!';
         $this->redirect('admin/pages');

@@ -31,6 +31,7 @@ class Schema
             self::createBanners($pdo, $db->isSqlite());
             self::createAnnouncements($pdo, $db->isSqlite());
             self::ensurePageMenuColumns($pdo, $db->isSqlite());
+            self::ensureSeoColumns($pdo, $db->isSqlite());
             self::seedAdmin($pdo);
             self::seedPages($pdo);
         } catch (Throwable $e) {
@@ -58,6 +59,9 @@ class Schema
                 `content` MEDIUMTEXT NOT NULL,
                 `featured_image` VARCHAR(255) NULL,
                 `is_published` TINYINT(1) NOT NULL DEFAULT 0,
+                `meta_title` VARCHAR(255) NOT NULL DEFAULT '',
+                `meta_description` VARCHAR(320) NOT NULL DEFAULT '',
+                `meta_keywords` VARCHAR(500) NOT NULL DEFAULT '',
                 `author_id` INT NULL,
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -78,6 +82,9 @@ class Schema
                 `show_in_footer` TINYINT(1) NOT NULL DEFAULT 1,
                 `show_in_news` TINYINT(1) NOT NULL DEFAULT 0,
                 `menu_order` INT NOT NULL DEFAULT 0,
+                `meta_title` VARCHAR(255) NOT NULL DEFAULT '',
+                `meta_description` VARCHAR(320) NOT NULL DEFAULT '',
+                `meta_keywords` VARCHAR(500) NOT NULL DEFAULT '',
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 INDEX `idx_pages_slug` (`slug`),
@@ -235,6 +242,9 @@ class Schema
                 content TEXT NOT NULL,
                 featured_image TEXT NULL,
                 is_published INTEGER NOT NULL DEFAULT 0,
+                meta_title TEXT NOT NULL DEFAULT '',
+                meta_description TEXT NOT NULL DEFAULT '',
+                meta_keywords TEXT NOT NULL DEFAULT '',
                 author_id INTEGER NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -256,6 +266,9 @@ class Schema
                 show_in_footer INTEGER NOT NULL DEFAULT 1,
                 show_in_news INTEGER NOT NULL DEFAULT 0,
                 menu_order INTEGER NOT NULL DEFAULT 0,
+                meta_title TEXT NOT NULL DEFAULT '',
+                meta_description TEXT NOT NULL DEFAULT '',
+                meta_keywords TEXT NOT NULL DEFAULT '',
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
@@ -371,5 +384,32 @@ class Schema
         ');
         $stmt->execute([':table' => $table, ':column' => $column]);
         return (int) $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Meta Title / Description / Keywords em articles e pages.
+     */
+    private static function ensureSeoColumns(PDO $pdo, bool $sqlite): void
+    {
+        $defs = $sqlite
+            ? [
+                'meta_title' => "TEXT NOT NULL DEFAULT ''",
+                'meta_description' => "TEXT NOT NULL DEFAULT ''",
+                'meta_keywords' => "TEXT NOT NULL DEFAULT ''",
+            ]
+            : [
+                'meta_title' => "VARCHAR(255) NOT NULL DEFAULT ''",
+                'meta_description' => "VARCHAR(320) NOT NULL DEFAULT ''",
+                'meta_keywords' => "VARCHAR(500) NOT NULL DEFAULT ''",
+            ];
+
+        foreach (['articles', 'pages'] as $table) {
+            foreach ($defs as $name => $definition) {
+                if (self::tableHasColumn($pdo, $table, $name, $sqlite)) {
+                    continue;
+                }
+                $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$name} {$definition}");
+            }
+        }
     }
 }

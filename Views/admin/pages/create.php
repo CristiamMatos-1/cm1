@@ -24,6 +24,7 @@ require dirname(__DIR__) . '/partials/header.php';
         <input id="is_published" name="is_published" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
         <label for="is_published" class="ml-2 block text-sm text-gray-900">Página visível publicamente (Publicada)</label>
     </div>
+    <?php $seo = []; require dirname(__DIR__) . '/partials/seo_fields.php'; ?>
     <fieldset class="mb-6 border border-gray-200 rounded-md p-4">
         <legend class="text-sm font-medium text-gray-700 px-1">Exibir link em</legend>
         <p class="text-xs text-gray-500 mb-3">Escolha onde o link desta página aparece no site público.</p>

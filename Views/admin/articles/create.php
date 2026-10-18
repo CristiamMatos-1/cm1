@@ -70,6 +70,7 @@ require dirname(__DIR__) . '/partials/header.php';
         <input id="is_published" name="is_published" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
         <label for="is_published" class="ml-2 block text-sm text-gray-900">Publicar imediatamente</label>
     </div>
+    <?php $seo = []; require dirname(__DIR__) . '/partials/seo_fields.php'; ?>
     <div class="mb-8 flex items-center bg-blue-50 p-3 rounded border border-blue-100">
         <input id="post_social" name="post_social" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
         <label for="post_social" class="ml-2 block text-sm text-gray-700 flex items-center gap-2">

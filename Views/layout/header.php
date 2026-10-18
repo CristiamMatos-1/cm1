@@ -31,12 +31,34 @@ try {
     error_log('Layout header: ' . $e->getMessage());
 }
 ?>
+<?php
+$seo = $seo ?? [];
+$seoTitle = trim((string) ($seo['title'] ?? '')) !== '' ? (string) $seo['title'] : (string) ($title ?? $globalCompanyName);
+$seoDescription = trim((string) ($seo['description'] ?? ''));
+$seoKeywords = trim((string) ($seo['keywords'] ?? ''));
+$canonicalUrl = trim((string) ($canonicalUrl ?? ''));
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title ?? $globalCompanyName) ?></title>
+    <title><?= e($seoTitle) ?></title>
+    <?php if ($seoDescription !== ''): ?>
+        <meta name="description" content="<?= e($seoDescription) ?>">
+    <?php endif; ?>
+    <?php if ($seoKeywords !== ''): ?>
+        <meta name="keywords" content="<?= e($seoKeywords) ?>">
+    <?php endif; ?>
+    <?php if ($canonicalUrl !== ''): ?>
+        <link rel="canonical" href="<?= e($canonicalUrl) ?>">
+    <?php endif; ?>
+    <meta property="og:title" content="<?= e($seoTitle) ?>">
+    <?php if ($seoDescription !== ''): ?>
+        <meta property="og:description" content="<?= e($seoDescription) ?>">
+    <?php endif; ?>
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

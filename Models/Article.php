@@ -73,8 +73,13 @@ class Article extends Model
     public function create(array $data): int
     {
         $stmt = $this->db->prepare('
-            INSERT INTO articles (title, slug, content, featured_image, is_published, author_id)
-            VALUES (:title, :slug, :content, :featured_image, :is_published, :author_id)
+            INSERT INTO articles (
+                title, slug, content, featured_image, is_published, author_id,
+                meta_title, meta_description, meta_keywords
+            ) VALUES (
+                :title, :slug, :content, :featured_image, :is_published, :author_id,
+                :meta_title, :meta_description, :meta_keywords
+            )
         ');
 
         $stmt->execute([
@@ -84,6 +89,9 @@ class Article extends Model
             ':featured_image' => $data['featured_image'] ?? null,
             ':is_published' => $data['is_published'] ?? 0,
             ':author_id' => $data['author_id'],
+            ':meta_title' => $data['meta_title'] ?? '',
+            ':meta_description' => $data['meta_description'] ?? '',
+            ':meta_keywords' => $data['meta_keywords'] ?? '',
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -97,13 +105,17 @@ class Article extends Model
             $slug = $this->uniqueSlug($data['title'], $id);
         }
 
-        $query = 'UPDATE articles SET title = :title, slug = :slug, content = :content, is_published = :is_published';
+        $query = 'UPDATE articles SET title = :title, slug = :slug, content = :content, is_published = :is_published,
+            meta_title = :meta_title, meta_description = :meta_description, meta_keywords = :meta_keywords';
         $params = [
             ':id' => $id,
             ':title' => $data['title'],
             ':slug' => $slug,
             ':content' => $data['content'],
             ':is_published' => $data['is_published'] ?? 0,
+            ':meta_title' => $data['meta_title'] ?? '',
+            ':meta_description' => $data['meta_description'] ?? '',
+            ':meta_keywords' => $data['meta_keywords'] ?? '',
         ];
 
         if (isset($data['featured_image'])) {

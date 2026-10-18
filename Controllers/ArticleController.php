@@ -6,6 +6,7 @@ use Config\App;
 use Core\Auth;
 use Core\HtmlContent;
 use Core\Input;
+use Core\Seo;
 use Core\Services\GeminiAIService;
 use Core\Services\ImageUploadService;
 use Core\Services\SocialMediaService;
@@ -57,12 +58,12 @@ class ArticleController extends BaseAdminController
             $this->redirect('admin/articles/create');
         }
 
-        $data = [
+        $data = array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
             'author_id' => Auth::id(),
-        ];
+        ], Seo::fromPost());
 
         $image = $this->handleUpload('admin/articles/create');
         if ($image !== null) {
@@ -123,11 +124,11 @@ class ArticleController extends BaseAdminController
             $this->redirect('admin/articles/edit', ['id' => (string) $id]);
         }
 
-        $data = [
+        $data = array_merge([
             'title' => $title,
             'content' => $content,
             'is_published' => $isPublished,
-        ];
+        ], Seo::fromPost());
 
         $image = $this->handleUpload('admin/articles/edit', ['id' => (string) $id]);
         if ($image !== null) {

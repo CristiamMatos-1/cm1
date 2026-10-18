@@ -92,10 +92,12 @@ class Page extends Model
         $stmt = $this->db->prepare('
             INSERT INTO pages (
                 title, slug, content, is_published,
-                show_in_header, show_in_footer, show_in_news, menu_order
+                show_in_header, show_in_footer, show_in_news, menu_order,
+                meta_title, meta_description, meta_keywords
             ) VALUES (
                 :title, :slug, :content, :is_published,
-                :show_in_header, :show_in_footer, :show_in_news, :menu_order
+                :show_in_header, :show_in_footer, :show_in_news, :menu_order,
+                :meta_title, :meta_description, :meta_keywords
             )
         ');
 
@@ -108,6 +110,9 @@ class Page extends Model
             ':show_in_footer' => $data['show_in_footer'] ?? 1,
             ':show_in_news' => $data['show_in_news'] ?? 0,
             ':menu_order' => $data['menu_order'] ?? 0,
+            ':meta_title' => $data['meta_title'] ?? '',
+            ':meta_description' => $data['meta_description'] ?? '',
+            ':meta_keywords' => $data['meta_keywords'] ?? '',
         ]);
 
         return (int) $this->db->lastInsertId();
@@ -125,7 +130,9 @@ class Page extends Model
             UPDATE pages
             SET title = :title, slug = :slug, content = :content, is_published = :is_published,
                 show_in_header = :show_in_header, show_in_footer = :show_in_footer,
-                show_in_news = :show_in_news, menu_order = :menu_order
+                show_in_news = :show_in_news, menu_order = :menu_order,
+                meta_title = :meta_title, meta_description = :meta_description,
+                meta_keywords = :meta_keywords
             WHERE id = :id
         ');
 
@@ -139,6 +146,9 @@ class Page extends Model
             ':show_in_footer' => $data['show_in_footer'] ?? 1,
             ':show_in_news' => $data['show_in_news'] ?? 0,
             ':menu_order' => $data['menu_order'] ?? 0,
+            ':meta_title' => $data['meta_title'] ?? '',
+            ':meta_description' => $data['meta_description'] ?? '',
+            ':meta_keywords' => $data['meta_keywords'] ?? '',
         ]);
     }
 

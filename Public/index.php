@@ -63,6 +63,8 @@ $router->get('/artigo', 'HomeController@artigo');
 $router->get('/pagina', 'HomeController@page');
 $router->get('/suporte', 'SupportController@index');
 $router->get('/download', 'SupportController@download');
+$router->get('/sitemap.xml', 'SeoController@sitemap');
+$router->get('/robots.txt', 'SeoController@robots');
 
 $router->get('/login', 'AuthController@login');
 $router->post('/login/authenticate', 'AuthController@authenticate');

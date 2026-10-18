@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Config\App;
 use Core\Controller;
 use Core\Input;
 use Core\Services\FileUploadService;
@@ -23,6 +24,12 @@ class SupportController extends Controller
 
         $this->render('home/suporte', array_merge($this->siteContext->layoutData(), [
             'title' => 'Suporte Remoto e Downloads',
+            'seo' => [
+                'title' => 'Suporte Remoto e Downloads - CONINFOMS',
+                'description' => 'Baixe as ferramentas de acesso remoto e os arquivos de suporte da CONINFOMS.',
+                'keywords' => 'suporte, download, remoto',
+            ],
+            'canonicalUrl' => App::absoluteUrl('suporte'),
             'downloads' => $files,
         ]));
     }
