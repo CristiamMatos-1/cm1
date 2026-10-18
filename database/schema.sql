@@ -1,4 +1,5 @@
 -- Schema MySQL do CMS institucional (devoluto.com.br/cm1)
+-- Apenas estrutura (sem dados). Para instalação completa com seeds, use install.sql.
 -- Prepared statements / PDO são usados em todas as queries da aplicação.
 
 CREATE TABLE IF NOT EXISTS `users` (
