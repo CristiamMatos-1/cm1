@@ -11,7 +11,7 @@
 <!-- Content -->
 <section class="py-12 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="prose max-w-none text-gray-700">
+        <div class="prose max-w-none text-gray-700 text-justify [&_p]:text-justify [&_li]:text-justify">
             <h2 class="text-2xl font-bold text-brand-dark mb-4">Nossa Missão</h2>
             <p class="mb-6 leading-relaxed">
                 A CONINFOMS nasceu com o objetivo de simplificar a tecnologia para empresas de todos os tamanhos. 

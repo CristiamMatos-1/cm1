@@ -46,7 +46,7 @@ $navClass = static function (string $key, string $current): string {
       tinymce.init({
         selector: '#content-editor',
         plugins: 'advlist autolink lists link image charmap preview anchor pagebreak',
-        toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | removeformat',
+        toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist | link image | removeformat',
         toolbar_mode: 'floating',
         height: 500,
         menubar: false,
@@ -56,7 +56,8 @@ $navClass = static function (string $key, string $current): string {
         encoding: 'html',
         convert_urls: false,
         verify_html: true,
-        content_style: 'body { font-family: system-ui, sans-serif; font-size: 16px; }'
+        // Alinhamento justificado por padrão (artigos e páginas)
+        content_style: 'body { font-family: system-ui, sans-serif; font-size: 16px; text-align: justify; }'
       });
     </script>
     <?php endif; ?>

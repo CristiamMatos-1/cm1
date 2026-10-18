@@ -24,7 +24,7 @@ $hasFeatured = !empty($article['featured_image']);
 
 <section class="py-12 bg-white">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="prose prose-lg prose-blue mx-auto">
+        <div class="prose prose-lg prose-blue mx-auto text-justify [&_p]:text-justify [&_li]:text-justify">
             <?= \Core\HtmlContent::normalize((string) $article['content']) ?>
         </div>
         <div class="mt-12 pt-8 border-t border-gray-200 flex justify-between items-center flex-wrap gap-4">
