@@ -36,7 +36,7 @@
                     <h3 class="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Links Rápidos</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="<?= url() ?>" class="hover:text-white transition-colors">Início</a></li>
-                        <li><a href="<?= url('suporte') ?>" class="hover:text-white transition-colors">Suporte</a></li>
+                        <li><a href="<?= url('suporte') ?>" class="hover:text-white transition-colors"><?= e($supportLinkLabel ?? 'Suporte') ?></a></li>
                         <?php if (!empty($footerPages)): ?>
                             <?php foreach ($footerPages as $mp): ?>
                                 <li><a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="hover:text-white transition-colors"><?= e($mp['title']) ?></a></li>

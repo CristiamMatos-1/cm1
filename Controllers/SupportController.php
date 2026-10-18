@@ -7,7 +7,10 @@ use Core\Controller;
 use Core\Input;
 use Core\Services\FileUploadService;
 use Core\Services\SiteContextService;
+use Core\SupportPageCopy;
 use Models\Download;
+use Models\Setting;
+use Throwable;
 
 class SupportController extends Controller
 {
@@ -21,16 +24,35 @@ class SupportController extends Controller
     public function index(): void
     {
         $files = (new Download())->getPublished();
+        $copy = SupportPageCopy::fromMap([]);
+        $company = 'CONINFOMS';
+        try {
+            $settings = new Setting();
+            $copy = SupportPageCopy::fromMap($settings->getAll());
+            $companyName = trim($settings->get('company_name', $company));
+            if ($companyName !== '') {
+                $company = $companyName;
+            }
+        } catch (Throwable $e) {
+            error_log('Página de downloads: ' . $e->getMessage());
+        }
+
+        $description = $copy['text'] !== ''
+            ? $copy['text']
+            : 'Arquivos disponíveis para download.';
 
         $this->render('home/suporte', array_merge($this->siteContext->layoutData(), [
-            'title' => 'Suporte Remoto e Downloads',
+            'title' => $copy['title'],
             'seo' => [
-                'title' => 'Suporte Remoto e Downloads - CONINFOMS',
-                'description' => 'Baixe as ferramentas de acesso remoto e os arquivos de suporte da CONINFOMS.',
+                'title' => $copy['title'] . ' - ' . $company,
+                'description' => $description,
                 'keywords' => 'suporte, download, remoto',
             ],
             'canonicalUrl' => App::absoluteUrl('suporte'),
             'downloads' => $files,
+            'supportPageTitle' => $copy['title'],
+            'supportPageText' => $copy['text'],
+            'supportLinkLabel' => $copy['link'],
         ]));
     }
 

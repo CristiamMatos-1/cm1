@@ -5,7 +5,10 @@ namespace Controllers;
 use Core\Auth;
 use Core\Input;
 use Core\Services\FileUploadService;
+use Core\SupportPageCopy;
 use Models\Download;
+use Models\Setting;
+use Throwable;
 
 class AdminDownloadController extends BaseAdminController
 {
@@ -24,11 +27,39 @@ class AdminDownloadController extends BaseAdminController
         $msg = $_SESSION['success_msg'] ?? null;
         unset($_SESSION['success_msg']);
 
+        $pageCopy = SupportPageCopy::fromMap([]);
+        try {
+            $pageCopy = SupportPageCopy::fromMap((new Setting())->getAll());
+        } catch (Throwable $e) {
+            error_log('Textos da página de downloads: ' . $e->getMessage());
+        }
+
         $this->render('admin/downloads/index', [
             'title' => 'Suporte e Downloads - Admin',
             'downloads' => $this->downloads->getAll(),
             'msg' => $msg,
+            'pageCopy' => $pageCopy,
         ]);
+    }
+
+    public function updatePage(): void
+    {
+        $this->assertCsrf();
+
+        $copy = [
+            SupportPageCopy::KEY_LINK => SupportPageCopy::linkLabel(Input::string($_POST['support_link_label'] ?? '')),
+            SupportPageCopy::KEY_TITLE => SupportPageCopy::title(Input::string($_POST['support_page_title'] ?? '')),
+            SupportPageCopy::KEY_TEXT => SupportPageCopy::text(Input::string($_POST['support_page_text'] ?? '')),
+        ];
+
+        $settings = new Setting();
+        foreach ($copy as $key => $value) {
+            $settings->set($key, $value);
+        }
+
+        $this->audit('update', 'settings', null, 'Textos da página de downloads');
+        $_SESSION['success_msg'] = 'Textos da página de downloads atualizados.';
+        $this->redirect('admin/downloads');
     }
 
     public function create(): void

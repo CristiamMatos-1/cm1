@@ -1,5 +1,6 @@
 <?php
 use Core\Services\SocialLinksService;
+use Core\SupportPageCopy;
 use Models\Page;
 use Models\Setting;
 
@@ -9,6 +10,7 @@ $menuPages = $menuPages ?? [];
 $footerPages = $footerPages ?? [];
 $clientAreaText = 'Área do Cliente';
 $clientAreaLink = 'https://coninfoms.com.br/cm/';
+$supportLinkLabel = $supportLinkLabel ?? SupportPageCopy::DEFAULT_LINK;
 $socialLinks = $socialLinks ?? [];
 
 try {
@@ -17,6 +19,7 @@ try {
     $globalCompanyLogo = $globalSetting->get('company_logo', '');
     $clientAreaText = $globalSetting->get('client_area_text', 'Área do Cliente');
     $clientAreaLink = $globalSetting->get('client_area_link', 'https://coninfoms.com.br/cm/');
+    $supportLinkLabel = SupportPageCopy::linkLabel($globalSetting->get(SupportPageCopy::KEY_LINK, ''));
     $pageModel = new Page();
     if ($menuPages === []) {
         $menuPages = $pageModel->getPublishedFor(Page::PLACE_HEADER);
@@ -95,7 +98,7 @@ $canonicalUrl = trim((string) ($canonicalUrl ?? ''));
                 <nav class="hidden md:flex space-x-6 items-center">
                     <a href="<?= url() ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Início</a>
                     <a href="<?= url('materias') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Matérias</a>
-                    <a href="<?= url('suporte') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors">Suporte</a>
+                    <a href="<?= url('suporte') ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors"><?= e($supportLinkLabel) ?></a>
                     <?php foreach ($menuPages as $mp): ?>
                         <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="text-gray-600 hover:text-brand-blue font-medium transition-colors"><?= e($mp['title']) ?></a>
                     <?php endforeach; ?>
@@ -128,7 +131,7 @@ $canonicalUrl = trim((string) ($canonicalUrl ?? ''));
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-inner">
                 <a href="<?= url() ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Início</a>
                 <a href="<?= url('materias') ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Matérias</a>
-                <a href="<?= url('suporte') ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50">Suporte</a>
+                <a href="<?= url('suporte') ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50"><?= e($supportLinkLabel) ?></a>
                 <?php foreach ($menuPages as $mp): ?>
                     <a href="<?= url('pagina', ['slug' => $mp['slug']]) ?>" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50"><?= e($mp['title']) ?></a>
                 <?php endforeach; ?>
