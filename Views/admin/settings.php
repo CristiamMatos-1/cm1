@@ -8,6 +8,9 @@ require __DIR__ . '/partials/header.php';
 <?php if (!empty($msg)): ?>
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert"><p><?= e($msg) ?></p></div>
 <?php endif; ?>
+<?php if (!empty($error)): ?>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert"><p><?= e($error) ?></p></div>
+<?php endif; ?>
 
 <form action="<?= url('admin/settings/store') ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
     <?= csrf_field() ?>
@@ -67,15 +70,15 @@ require __DIR__ . '/partials/header.php';
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Título da Seção de Novidades</label>
-                <input type="text" name="news_section_title" value="<?= e($settings['news_section_title'] ?? 'Últimas Novidades') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+                <input type="text" name="news_section_title" value="<?= e($settings['news_section_title'] ?? '') ?>" placeholder="Deixe vazio para ocultar" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Título do Vídeo</label>
-                <input type="text" name="youtube_section_title" value="<?= e($settings['youtube_section_title'] ?? 'Acompanhe nosso Canal') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+                <input type="text" name="youtube_section_title" value="<?= e($settings['youtube_section_title'] ?? '') ?>" placeholder="Deixe vazio para ocultar" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto da Seção de Vídeo</label>
-                <textarea name="youtube_section_subtitle" rows="2" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5"><?= e($settings['youtube_section_subtitle'] ?? 'Fique por dentro das últimas tendências.') ?></textarea>
+                <textarea name="youtube_section_subtitle" rows="2" placeholder="Deixe vazio para ocultar" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5"><?= e($settings['youtube_section_subtitle'] ?? '') ?></textarea>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto Área do Cliente</label>
@@ -120,19 +123,93 @@ require __DIR__ . '/partials/header.php';
         </div>
     </div>
 
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-medium text-gray-800 mb-4">YouTube</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <?php
+        $videoMode = $settings['home_video_mode'] ?? '';
+        if (!in_array($videoMode, ['mp4', 'youtube_video', 'youtube_channel', 'none'], true)) {
+            if (!empty($settings['home_video_file'])) {
+                $videoMode = 'mp4';
+            } elseif (!empty($settings['youtube_video_url'])) {
+                $videoMode = 'youtube_video';
+            } elseif (!empty($settings['youtube_channel_url']) || !empty($settings['youtube_channel_id'])) {
+                $videoMode = 'youtube_channel';
+            }
+        }
+    ?>
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 space-y-4">
+        <h3 class="text-lg font-medium text-gray-800">Vídeo da página inicial</h3>
+        <p class="text-sm text-gray-500">Escolha um MP4, o link de um vídeo específico do YouTube ou o link de um canal. Título, texto, player e botão de inscrição só aparecem no site quando estiverem preenchidos.</p>
+
+        <fieldset class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <label class="flex items-start gap-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="home_video_mode" value="mp4" class="mt-1 home-video-mode" <?= $videoMode === 'mp4' ? 'checked' : '' ?>>
+                <span><strong>Arquivo MP4</strong><br><span class="text-xs text-gray-500">Enviar um vídeo do computador</span></span>
+            </label>
+            <label class="flex items-start gap-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="home_video_mode" value="youtube_video" class="mt-1 home-video-mode" <?= $videoMode === 'youtube_video' ? 'checked' : '' ?>>
+                <span><strong>Vídeo do YouTube</strong><br><span class="text-xs text-gray-500">Link de um vídeo específico</span></span>
+            </label>
+            <label class="flex items-start gap-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="home_video_mode" value="youtube_channel" class="mt-1 home-video-mode" <?= $videoMode === 'youtube_channel' ? 'checked' : '' ?>>
+                <span><strong>Canal do YouTube</strong><br><span class="text-xs text-gray-500">Link do canal</span></span>
+            </label>
+            <label class="flex items-start gap-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="home_video_mode" value="none" class="mt-1 home-video-mode" <?= $videoMode === 'none' ? 'checked' : '' ?>>
+                <span><strong>Ocultar player</strong><br><span class="text-xs text-gray-500">Não exibir vídeo na home</span></span>
+            </label>
+        </fieldset>
+
+        <div id="video-panel-mp4" class="video-panel space-y-3">
+            <?php if (!empty($settings['home_video_file'])): ?>
+                <video class="w-full max-w-md rounded border" controls src="<?= asset($settings['home_video_file']) ?>"></video>
+                <label class="inline-flex items-center text-sm text-red-600 cursor-pointer">
+                    <input type="checkbox" name="remove_home_video" value="1" class="mr-2"> Remover MP4 atual
+                </label>
+            <?php endif; ?>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Channel ID</label>
-                <input type="text" name="youtube_channel_id" value="<?= e($settings['youtube_channel_id'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Escolher arquivo MP4</label>
+                <input type="file" name="home_video_file" accept="video/mp4" class="block w-full text-sm text-gray-500">
+                <p class="text-xs text-gray-500 mt-1">Apenas MP4. Máximo 50 MB (ou o limite do servidor).</p>
             </div>
+        </div>
+
+        <div id="video-panel-youtube_video" class="video-panel">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Link do vídeo</label>
+            <input type="text" name="youtube_video_url" value="<?= e($settings['youtube_video_url'] ?? '') ?>" placeholder="https://www.youtube.com/watch?v=... ou https://youtu.be/..." class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+        </div>
+
+        <div id="video-panel-youtube_channel" class="video-panel">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Link do canal</label>
+            <input type="text" name="youtube_channel_url" value="<?= e($settings['youtube_channel_url'] ?? ($settings['youtube_channel_id'] ?? '')) ?>" placeholder="https://www.youtube.com/@canal ou Channel ID (UC...)" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
+            <p class="text-xs text-gray-500 mt-1">O player do canal usa o ID UC... (YouTube Studio → Sobre). Um link @canal mostra só o botão Inscreva-se.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-gray-100">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">API Key (opcional, para último vídeo do canal)</label>
                 <input type="text" name="youtube_api_key" value="<?= e($settings['youtube_api_key'] ?? '') ?>" class="shadow-sm block w-full border-gray-300 rounded-md border p-2.5">
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            const panels = {
+                mp4: document.getElementById('video-panel-mp4'),
+                youtube_video: document.getElementById('video-panel-youtube_video'),
+                youtube_channel: document.getElementById('video-panel-youtube_channel')
+            };
+            function sync() {
+                const selected = document.querySelector('input[name="home_video_mode"]:checked');
+                const mode = selected ? selected.value : '';
+                Object.entries(panels).forEach(([key, el]) => {
+                    if (!el) return;
+                    const show = mode === '' || mode === 'none' || mode === key;
+                    el.classList.toggle('hidden', !show);
+                });
+            }
+            document.querySelectorAll('.home-video-mode').forEach((el) => el.addEventListener('change', sync));
+            sync();
+        })();
+    </script>
 
     <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
         <h3 class="text-lg font-medium text-gray-800 mb-4">Gemini IA</h3>

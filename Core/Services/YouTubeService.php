@@ -15,7 +15,65 @@ class YouTubeService
     {
         $this->settings = $settings ?? new Setting();
         $this->apiKey = $this->settings->get('youtube_api_key', '');
-        $this->channelId = $this->settings->get('youtube_channel_id', '');
+        $this->channelId = self::extractChannelId(
+            $this->settings->get('youtube_channel_url', '') ?: $this->settings->get('youtube_channel_id', '')
+        ) ?? '';
+    }
+
+    public static function extractVideoId(string $input): ?string
+    {
+        $input = trim($input);
+        if ($input === '') {
+            return null;
+        }
+        if (preg_match('/^[A-Za-z0-9_-]{11}$/', $input) === 1) {
+            return $input;
+        }
+
+        $query = [];
+        parse_str((string) parse_url($input, PHP_URL_QUERY), $query);
+        if (isset($query['v']) && preg_match('/^[A-Za-z0-9_-]{11}$/', (string) $query['v']) === 1) {
+            return (string) $query['v'];
+        }
+
+        if (preg_match('~(?:youtu\.be/|youtube(?:-nocookie)?\.com/(?:embed|shorts|live|v)/)([A-Za-z0-9_-]{11})~i', $input, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    public static function extractChannelId(string $input): ?string
+    {
+        $input = trim($input);
+        if ($input === '') {
+            return null;
+        }
+        if (preg_match('/^UC[A-Za-z0-9_-]{20,}$/', $input) === 1) {
+            return $input;
+        }
+        if (preg_match('~youtube\.com/channel/(UC[A-Za-z0-9_-]{20,})~i', $input, $matches) === 1) {
+            return $matches[1];
+        }
+        return null;
+    }
+
+    public static function normalizeChannelUrl(string $input): string
+    {
+        $input = trim($input);
+        if ($input === '') {
+            return '';
+        }
+        if (preg_match('~^https?://~i', $input) === 1) {
+            return $input;
+        }
+        if (str_starts_with($input, '@')) {
+            return 'https://www.youtube.com/' . $input;
+        }
+        if (preg_match('/^UC[A-Za-z0-9_-]{20,}$/', $input) === 1) {
+            return 'https://www.youtube.com/channel/' . $input;
+        }
+        return 'https://www.youtube.com/' . ltrim($input, '/');
     }
 
     public function getLatestVideoId(): ?string

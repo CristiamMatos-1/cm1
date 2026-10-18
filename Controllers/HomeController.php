@@ -3,8 +3,8 @@
 namespace Controllers;
 
 use Core\Controller;
+use Core\Services\HomeVideoService;
 use Core\Services\SiteContextService;
-use Core\Services\YouTubeService;
 use Models\Article;
 use Models\Page;
 use Models\Setting;
@@ -21,13 +21,6 @@ class HomeController extends Controller
 
     public function index(): void
     {
-        $latestVideoId = null;
-        try {
-            $latestVideoId = (new YouTubeService())->getLatestVideoId();
-        } catch (Throwable $e) {
-            error_log('YouTubeService: ' . $e->getMessage());
-        }
-
         $settings = new Setting();
         $articles = [];
         try {
@@ -36,9 +29,10 @@ class HomeController extends Controller
             $articles = [];
         }
 
+        $homeVideo = (new HomeVideoService($settings))->forHomepage();
+
         $this->render('home/index', array_merge($this->siteContext->layoutData(), [
             'title' => $settings->get('company_name', 'CONINFOMS') . ' - Soluções em Tecnologia',
-            'latestVideoId' => $latestVideoId,
             'articles' => $articles,
             'heroTitle' => $settings->get('hero_title', 'Inovação e Tecnologia para o seu Negócio'),
             'heroSubtitle' => $settings->get('hero_subtitle', 'A CONINFOMS entrega soluções de ponta, desenvolvimento de sistemas e infraestrutura moderna para impulsionar o seu sucesso no mundo digital.'),
@@ -47,10 +41,8 @@ class HomeController extends Controller
             'heroBtn2Text' => $settings->get('hero_btn2_text', 'Nossos Serviços'),
             'heroBtn2Link' => $settings->get('hero_btn2_link', '#servicos'),
             'articlesSectionTitle' => $settings->get('articles_section_title', 'Nossas Últimas Matérias'),
-            'newsSectionTitle' => $settings->get('news_section_title', 'Últimas Novidades'),
-            'youtubeSectionTitle' => $settings->get('youtube_section_title', 'Acompanhe nosso Canal'),
-            'youtubeSectionSubtitle' => $settings->get('youtube_section_subtitle', 'Fique por dentro das últimas tendências de tecnologia, tutoriais e novidades sobre a CONINFOMS diretamente no nosso canal do YouTube.'),
-            'youtubeChannelId' => $settings->get('youtube_channel_id', ''),
+            'newsSectionTitle' => $settings->get('news_section_title', ''),
+            'homeVideo' => $homeVideo,
         ]));
     }
 

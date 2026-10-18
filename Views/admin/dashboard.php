@@ -73,7 +73,7 @@ require __DIR__ . '/partials/header.php';
             </li>
             <li>
                 <a href="<?= url('admin/settings') ?>" class="flex items-center text-blue-700 hover:text-blue-900 transition">
-                    <i class="fa-brands fa-youtube w-6 text-red-500"></i> Configurar Vídeo do YouTube
+                    <i class="fa-brands fa-youtube w-6 text-red-500"></i> Configurar vídeo da página inicial
                 </a>
             </li>
         </ul>

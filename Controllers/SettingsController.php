@@ -3,6 +3,8 @@
 namespace Controllers;
 
 use Core\Services\ImageUploadService;
+use Core\Services\VideoUploadService;
+use Core\Services\YouTubeService;
 use Models\Setting;
 
 class SettingsController extends BaseAdminController
@@ -18,12 +20,14 @@ class SettingsController extends BaseAdminController
     public function index(): void
     {
         $msg = $_SESSION['settings_msg'] ?? null;
-        unset($_SESSION['settings_msg']);
+        $error = $_SESSION['settings_error'] ?? null;
+        unset($_SESSION['settings_msg'], $_SESSION['settings_error']);
 
         $this->render('admin/settings', [
             'title' => 'Configurações - Admin',
             'settings' => $this->settingModel->getAll(),
             'msg' => $msg,
+            'error' => $error,
         ]);
     }
 
@@ -33,7 +37,8 @@ class SettingsController extends BaseAdminController
 
         $allowedKeys = [
             'company_name', 'whatsapp_number', 'whatsapp_message',
-            'youtube_api_key', 'youtube_channel_id', 'meta_access_token',
+            'youtube_api_key', 'youtube_channel_id', 'youtube_channel_url',
+            'youtube_video_url', 'home_video_mode', 'meta_access_token',
             'meta_page_id', 'contact_email', 'contact_phone', 'hero_title',
             'hero_subtitle', 'hero_btn1_text', 'hero_btn1_link', 'hero_btn2_text',
             'hero_btn2_link', 'client_area_text', 'client_area_link',
@@ -60,7 +65,42 @@ class SettingsController extends BaseAdminController
             $this->settingModel->set('company_logo', '');
         }
 
-        $_SESSION['settings_msg'] = 'Configurações atualizadas com sucesso!';
+        $mode = trim((string) ($_POST['home_video_mode'] ?? ''));
+        if (!in_array($mode, ['mp4', 'youtube_video', 'youtube_channel', 'none'], true)) {
+            $this->settingModel->set('home_video_mode', '');
+        }
+
+        $channelUrl = trim((string) ($_POST['youtube_channel_url'] ?? ''));
+        if ($channelUrl !== '') {
+            $parsedChannel = YouTubeService::extractChannelId($channelUrl);
+            if ($parsedChannel !== null) {
+                $this->settingModel->set('youtube_channel_id', $parsedChannel);
+            }
+        } else {
+            $this->settingModel->set('youtube_channel_id', '');
+        }
+
+        $videoUpload = new VideoUploadService();
+        if (isset($_POST['remove_home_video']) && $_POST['remove_home_video'] === '1') {
+            $videoUpload->delete($this->settingModel->get('home_video_file', ''));
+            $this->settingModel->set('home_video_file', '');
+        }
+
+        if (isset($_FILES['home_video_file']) && $_FILES['home_video_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $path = $videoUpload->upload($_FILES['home_video_file']);
+            if ($path) {
+                $old = $this->settingModel->get('home_video_file', '');
+                if ($old !== '' && $old !== $path) {
+                    $videoUpload->delete($old);
+                }
+                $this->settingModel->set('home_video_file', $path);
+                $this->settingModel->set('home_video_mode', 'mp4');
+            }
+        }
+
+        if (empty($_SESSION['settings_error'])) {
+            $_SESSION['settings_msg'] = 'Configurações atualizadas com sucesso!';
+        }
         $this->redirect('admin/settings');
     }
 }
